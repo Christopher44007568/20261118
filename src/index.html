@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BC 压缩纹理解码与误差分析</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>BC 压缩纹理解码与误差分析</h1>
+    <p class="subtitle">BC1 (DXT1) 与 BC3 (DXT5) 块格式 · WebGL2 / WebGPU 硬件解码 · CPU 参考对照</p>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <h2>1. 输入与格式</h2>
+      <div class="control-row">
+        <div class="button-group">
+          <button id="pattern-gradient">渐变图案</button>
+          <button id="pattern-hard-edge">硬边图案</button>
+          <button id="pattern-noise">噪声图案</button>
+        </div>
+        <label class="file-label">
+          上传图片
+          <input type="file" id="file-input" accept="image/*" />
+        </label>
+      </div>
+      <div class="control-row">
+        <label>宽 <input type="number" id="width-input" value="30" min="1" max="1024" /></label>
+        <label>高 <input type="number" id="height-input" value="22" min="1" max="1024" /></label>
+        <label>块格式
+          <select id="format-select">
+            <option value="BC1">BC1 / DXT1（RGB，8 字节/块）</option>
+            <option value="BC3">BC3 / DXT5（RGBA，16 字节/块）</option>
+          </select>
+        </label>
+        <button id="run-button" class="primary">编码并解码</button>
+        <button id="export-button">导出 JSON 报告</button>
+      </div>
+      <div id="status" class="status">就绪</div>
+      <div id="encode-info" class="mono"></div>
+      <div id="size-info" class="mono"></div>
+    </section>
+
+    <section class="panel">
+      <h2>2. 后端能力</h2>
+      <div id="backend-status"></div>
+    </section>
+
+    <section class="panel">
+      <h2>3. 解码结果（选择查看的后端）</h2>
+      <div class="control-row">
+        <label><input type="radio" name="view-backend" value="CPU" checked /> CPU 参考</label>
+        <label><input type="radio" name="view-backend" value="WebGL2" /> WebGL2</label>
+        <label><input type="radio" name="view-backend" value="WebGPU" /> WebGPU</label>
+      </div>
+      <div class="canvas-grid">
+        <figure>
+          <figcaption>原始图像</figcaption>
+          <canvas id="original-canvas" class="image-canvas"></canvas>
+        </figure>
+        <figure>
+          <figcaption>解码结果</figcaption>
+          <canvas id="decoded-canvas" class="image-canvas"></canvas>
+        </figure>
+        <figure>
+          <figcaption>像素级差异（放大 3 倍）</figcaption>
+          <canvas id="diff-canvas" class="image-canvas"></canvas>
+        </figure>
+      </div>
+      <div class="canvas-grid">
+        <figure>
+          <figcaption>每块压缩颜色（白框为非 4 倍数边缘块）</figcaption>
+          <canvas id="blocks-canvas"></canvas>
+        </figure>
+        <figure>
+          <figcaption>每块误差热图</figcaption>
+          <canvas id="heatmap-canvas"></canvas>
+        </figure>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>4. 误差指标</h2>
+      <table class="data-table">
+        <tbody id="metrics"></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>5. 显存占用与解码耗时</h2>
+      <table class="data-table wide">
+        <thead>
+          <tr>
+            <th>后端</th><th>模式</th><th>解码耗时</th>
+            <th>压缩纹理显存</th><th>渲染/暂存</th><th>CPU 对照校验</th>
+          </tr>
+        </thead>
+        <tbody id="runs-body"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

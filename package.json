@@ -1,0 +1,11 @@
+{
+  "name": "bc-compression-lab",
+  "version": "1.0.0",
+  "description": "BC1/BC3 block-compressed texture decode and error analysis on WebGL2/WebGPU with a CPU reference decoder.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/codec.test.mjs tests/pipeline.test.mjs",
+    "serve": "python3 -m http.server 8000"
+  }
+}
