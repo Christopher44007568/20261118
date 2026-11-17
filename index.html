@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>体素贪心网格化演示 (WebGL2)</title>
+    <link rel="stylesheet" href="web/style.css" />
+  </head>
+  <body>
+    <main>
+      <section class="panel">
+        <h1>体素场景 · 贪心网格化</h1>
+        <h2>场景</h2>
+        <div class="row">
+          <button class="active" data-scene="0">规则墙体</button>
+          <button data-scene="1">单孔洞墙体</button>
+          <button data-scene="2">棋盘混合材质</button>
+        </div>
+        <h2>网格模式</h2>
+        <div class="row">
+          <button data-mode="naive">朴素面提取</button>
+          <button class="active" data-mode="greedy">贪心合并</button>
+          <button data-mode="chunk">分块局部重建</button>
+        </div>
+        <h2>局部编辑</h2>
+        <div class="row">
+          <button id="dig" class="primary">挖掉一个体素</button>
+          <button id="reset">重置场景</button>
+        </div>
+        <p id="dig-report" class="report">尚未挖除体素。</p>
+        <h2>统计</h2>
+        <table>
+          <tbody id="summary"></tbody>
+        </table>
+        <p class="hint">拖动旋转视角 · 滚轮缩放 · 背面已开启剔除，绕序统一朝外。</p>
+      </section>
+      <canvas id="view"></canvas>
+    </main>
+    <script type="module" src="web/app.js"></script>
+  </body>
+</html>

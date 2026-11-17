@@ -1,0 +1,10 @@
+{
+  "name": "voxel-greedy-mesher",
+  "version": "1.0.0",
+  "description": "Voxel scene generation, greedy face-merging meshing and WebGL2 upload-ready buffers",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "serve": "python3 -m http.server 8080"
+  }
+}

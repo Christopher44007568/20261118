@@ -1,0 +1,107 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background: #0d1016;
+  color: #d8dee9;
+}
+
+main {
+  display: flex;
+  min-height: 100vh;
+}
+
+.panel {
+  width: 360px;
+  padding: 20px 22px;
+  background: #141923;
+  border-right: 1px solid #232a38;
+  overflow-y: auto;
+}
+
+h1 {
+  font-size: 19px;
+  margin: 0 0 18px;
+}
+
+h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8b95a7;
+  margin: 18px 0 8px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+button {
+  border: 1px solid #2c3546;
+  background: #1b2230;
+  color: #d8dee9;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #4a78b8;
+}
+
+button.active {
+  background: #2f5d9e;
+  border-color: #5b8fd6;
+}
+
+button.primary {
+  background: #8a4b2f;
+  border-color: #c4704a;
+}
+
+.report {
+  font-size: 13px;
+  line-height: 1.6;
+  background: #10151e;
+  border: 1px solid #232a38;
+  border-radius: 8px;
+  padding: 10px 12px;
+  min-height: 64px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+td {
+  padding: 7px 4px;
+  border-bottom: 1px solid #232a38;
+  vertical-align: top;
+}
+
+td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  font-size: 12px;
+  color: #7c8699;
+  margin-top: 16px;
+  line-height: 1.6;
+}
+
+canvas {
+  flex: 1;
+  width: calc(100vw - 360px);
+  height: 100vh;
+  display: block;
+}
