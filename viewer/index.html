@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Catmull-Clark WebAssembly 细分查看器</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #1b1e24; color: #dde; }
+  #ui { position: fixed; top: 0; left: 0; width: 300px; padding: 12px; background: rgba(20,22,28,.92);
+        height: 100vh; overflow-y: auto; box-sizing: border-box; }
+  #ui label { display: block; margin: 8px 0 2px; font-size: 13px; }
+  #ui select, #ui input[type=range] { width: 100%; }
+  #gl { position: fixed; left: 300px; top: 0; }
+  table { border-collapse: collapse; font-size: 11px; width: 100%; margin-top: 6px; }
+  td, th { border: 1px solid #444; padding: 2px 4px; text-align: right; }
+  .stat { font-size: 12px; margin: 2px 0; }
+  h3 { margin: 10px 0 4px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div id="ui">
+  <h3>Catmull-Clark (WebAssembly)</h3>
+  <label>控制网格</label>
+  <select id="meshSel">
+    <option value="cube">立方体 (6 四边面)</option>
+    <option value="plane">开放平面 (三角/四边混合)</option>
+  </select>
+  <label>细分次数: <span id="levelVal">2</span></label>
+  <input type="range" id="level" min="0" max="4" value="2">
+  <label><input type="checkbox" id="showSurface" checked> 显示结果表面</label>
+  <label><input type="checkbox" id="showCage" checked> 显示控制笼</label>
+  <label><input type="checkbox" id="showNormals"> 显示面法线</label>
+  <h3>统计</h3>
+  <div id="summary"></div>
+  <div id="faceTableWrap"><table id="faceTable"></table></div>
+</div>
+<canvas id="gl"></canvas>
+<script src="main.js"></script>
+</body>
+</html>
