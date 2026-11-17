@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebGL2 场景图检查器</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <aside id="inspector">
+    <h2>场景图检查器</h2>
+    <div id="tree"></div>
+    <div id="details">
+      <h3>节点详情</h3>
+      <div id="details-body">未选择节点</div>
+    </div>
+  </aside>
+  <main id="viewport-wrap">
+    <canvas id="viewport"></canvas>
+    <div id="stats"></div>
+    <div id="toolbar">
+      <button id="selftest">运行自检</button>
+      <span class="hint">左键拖动 = 移动选中节点 · 右键拖动 = 旋转视角 · 滚轮 = 缩放</span>
+    </div>
+    <pre id="log"></pre>
+  </main>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
