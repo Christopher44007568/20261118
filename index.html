@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>八叉树视锥剔除演示</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #14181f; color: #dde3ec;
+         display: flex; gap: 12px; padding: 12px; box-sizing: border-box; }
+  canvas { background: #0b0e13; border: 1px solid #2a3342; border-radius: 6px; }
+  #panel { width: 300px; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: #1c2230; border: 1px solid #2a3342; border-radius: 6px; padding: 10px 12px; }
+  .card h2 { margin: 0 0 8px; font-size: 14px; color: #8fb8ff; }
+  .row { display: flex; justify-content: space-between; font-size: 13px; line-height: 1.7; }
+  .row b { color: #fff; font-variant-numeric: tabular-nums; }
+  button, select, input { accent-color: #4c8dff; }
+  button { background: #2a3348; color: #dde3ec; border: 1px solid #3b4a66; border-radius: 4px;
+           padding: 5px 10px; cursor: pointer; font-size: 13px; }
+  button:hover { background: #35415c; }
+  select { background: #2a3348; color: #dde3ec; border: 1px solid #3b4a66; border-radius: 4px;
+           padding: 4px 6px; width: 100%; font-size: 13px; }
+  input[type=range] { width: 100%; }
+  #consistency.ok { color: #5fd68a; }
+  #consistency.bad { color: #ff6b6b; }
+  .legend span { display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+                 margin: 0 4px 0 10px; vertical-align: middle; }
+  .legend { font-size: 12px; color: #9aa6bb; }
+</style>
+</head>
+<body>
+  <canvas id="view" width="760" height="760"></canvas>
+  <div id="panel">
+    <div class="card">
+      <h2>相机路径</h2>
+      <select id="pathSelect"></select>
+      <div style="margin-top:8px; display:flex; gap:6px;">
+        <button id="playBtn">播放</button>
+        <button id="verifyBtn">验证全部路径</button>
+      </div>
+      <input type="range" id="frameSlider" min="0" max="59" value="0" style="margin-top:8px;">
+      <div class="row"><span>帧</span><b id="frameLabel">0 / 59</b></div>
+    </div>
+    <div class="card">
+      <h2>剔除统计（当前帧）</h2>
+      <div class="row"><span>遍历节点数</span><b id="sVisited">-</b></div>
+      <div class="row"><span>剪枝节点数</span><b id="sPruned">-</b></div>
+      <div class="row"><span>整体接受跳过的子节点</span><b id="sSkipped">-</b></div>
+      <div class="row"><span>接受对象数</span><b id="sAccepted">-</b></div>
+      <div class="row"><span>拒绝对象数</span><b id="sRejected">-</b></div>
+      <div class="row"><span>与逐对象测试一致</span><b id="consistency">-</b></div>
+    </div>
+    <div class="card">
+      <h2>验证结果</h2>
+      <div id="verifyLog" style="font-size:12px; line-height:1.6; color:#9aa6bb;">尚未运行</div>
+    </div>
+    <div class="card legend">
+      <h2>图例（俯视 XZ）</h2>
+      <span style="background:#2f9e5f"></span>节点/对象 接受
+      <span style="background:#c98a2b"></span>节点 相交
+      <span style="background:#3a4356"></span>节点 剪枝<br>
+      <span style="background:#d64f4f"></span>对象 拒绝
+      <span style="background:#e8e4c9"></span>视锥
+      <span style="background:#4c8dff"></span>动态对象
+    </div>
+  </div>
+  <script type="module" src="ui.js"></script>
+</body>
+</html>
