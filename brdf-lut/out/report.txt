@@ -1,0 +1,26 @@
+== Environment BRDF LUT ==
+texture size      : 512 x 512  (RG16F-equivalent, R=scale G=bias)
+texture memory    : 1024.0 KiB (RG16F) / 512.0 KiB (RG8)
+LUT samples/texel : 2048
+generation time   : 8571.98 ms
+boundary clamp    : PASS (uv outside [0,1] clamps to edge texels)
+roughness continuity: max delta 0.003924 over 4096 steps (bilinear => C0 continuous)
+
+== LUT vs numeric reference (8192 samples/pixel) ==
+material 1: polished_gold  (rough=0.08, metal, F0=(1.00,0.766,0.336))
+  max luminance error  : 0.256130 (at NdotV=0.0096)
+  max relative error   : 0.8039 %
+  max error (NdotV>=.05): 0.002644
+  mean luminance error : 0.000140  (51468 sphere pixels)
+material 2: satin_plastic  (rough=0.45, dielectric, F0=0.04)
+  max luminance error  : 0.064154 (at NdotV=0.0096)
+  max relative error   : 0.6832 %
+  max error (NdotV>=.05): 0.002309
+  mean luminance error : 0.000084  (51468 sphere pixels)
+material 3: rough_aluminum (rough=0.85, metal, F0=(0.91,0.92,0.92))
+  max luminance error  : 0.297974 (at NdotV=0.0096)
+  max relative error   : 0.9541 %
+  max error (NdotV>=.05): 0.027240
+  mean luminance error : 0.000491  (51468 sphere pixels)
+
+overall max error : 0.297974 (luminance, linear space)
