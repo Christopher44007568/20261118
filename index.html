@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive WebGL2 tiled forward renderer with per-tile light heatmap and bit-exact all-light reference comparison."
+    />
+    <title>Tilefield — Tiled Forward Lighting</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div class="brand-copy">
+            <p class="eyebrow">Realtime lighting research <span>06</span></p>
+            <h1>Tilefield <i>Forward</i></h1>
+          </div>
+        </div>
+
+        <div class="run-strip" aria-label="Renderer configuration">
+          <div class="run-chip"><span class="pulse-dot"></span>LIVE GPU</div>
+          <div class="run-chip">13 × 9 TILES</div>
+          <div class="run-chip"><b id="lightChipCount">40</b> LIGHTS</div>
+        </div>
+
+        <div class="controls" aria-label="Demo controls">
+          <button class="control-button" id="pauseButton" type="button">
+            <span class="button-icon" id="pauseIcon">Ⅱ</span>
+            <span id="pauseLabel">Pause</span>
+          </button>
+          <button class="control-button is-active" id="heatButton" type="button" aria-pressed="true">
+            <span class="button-icon heat-icon">▦</span>
+            <span>Heatmap</span>
+          </button>
+          <button class="control-button" id="sweepButton" type="button" aria-pressed="false">
+            <span class="button-icon">↔</span>
+            <span>Edge sweep</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="stage-column" aria-label="Renderer views">
+          <div class="stage-heading">
+            <div>
+              <p class="section-kicker">SCREEN-SPACE LIGHT CULLING</p>
+              <h2>Same photons. <span>A fraction of the work.</span></h2>
+            </div>
+            <div class="quality-badge">
+              <span class="check">✓</span>
+              <span><b>BIT-EXACT</b> against all-light reference</span>
+            </div>
+          </div>
+
+          <div class="compare-row">
+            <article class="view-panel tiled-panel">
+              <header class="panel-heading">
+                <div class="panel-title">
+                  <span class="panel-index">01</span>
+                  <div>
+                    <h3>TILED FORWARD</h3>
+                    <p>Fragments see tile-local lights</p>
+                  </div>
+                </div>
+                <span class="panel-tag accent">CULLED LOOP</span>
+              </header>
+              <div class="canvas-frame">
+                <canvas id="tiledCanvas" width="832" height="576" aria-label="Tiled forward render"></canvas>
+                <canvas id="heatCanvas" width="832" height="576" class="heat-overlay" aria-label="Per-tile light count heatmap"></canvas>
+                <div class="frame-grid" aria-hidden="true"></div>
+                <div class="canvas-label desaturated">TILE <b id="tileSizeLabel">64</b> PX</div>
+                <div class="canvas-label right">HEAT <b id="heatStateLabel">ON</b></div>
+              </div>
+              <footer class="panel-footer">
+                <span><i class="swatch cyan"></i><b id="tileMinLabel">0</b>–<b id="tileMaxLabel">0</b> lights / tile</span>
+                <span class="footer-rule"></span>
+                <span>MAX <b id="tileMaxDuplicateLabel">0</b> / tile</span>
+              </footer>
+            </article>
+
+            <article class="view-panel reference-panel">
+              <header class="panel-heading">
+                <div class="panel-title">
+                  <span class="panel-index">REF</span>
+                  <div>
+                    <h3>ALL-LIGHT REFERENCE</h3>
+                    <p>Every light tested at every pixel</p>
+                  </div>
+                </div>
+                <span class="panel-tag">GROUND TRUTH</span>
+              </header>
+              <div class="canvas-frame">
+                <canvas id="referenceCanvas" width="832" height="576" aria-label="All-light reference render"></canvas>
+                <div class="frame-grid" aria-hidden="true"></div>
+                <div class="canvas-label">LOOP <b id="referenceLoopLabel">40</b> / PX</div>
+                <div class="canvas-label right live">REFERENCE</div>
+              </div>
+              <footer class="panel-footer">
+                <span>O(N) light evaluation</span>
+                <span class="footer-rule"></span>
+                <span><b>479,232</b> pixels</span>
+              </footer>
+            </article>
+          </div>
+
+          <div class="analysis-row">
+            <article class="analysis-card delta-card">
+              <header class="mini-heading">
+                <div>
+                  <span class="panel-index">02</span>
+                  <h3>PIXEL DELTA</h3>
+                </div>
+                <span class="status-pill good" id="deltaStatus">ZERO ERROR</span>
+              </header>
+              <div class="diff-frame">
+                <canvas id="diffCanvas" width="832" height="576" aria-label="Per-pixel difference"></canvas>
+                <div class="diff-zero" id="diffZero">
+                  <span>0</span>
+                  <small>CHANNEL DELTA</small>
+                </div>
+              </div>
+            </article>
+
+            <article class="analysis-card load-card">
+              <header class="mini-heading">
+                <div>
+                  <span class="panel-index">03</span>
+                  <h3>TILE LOAD DISTRIBUTION</h3>
+                </div>
+                <span class="micro-label">LIGHTS / TILE</span>
+              </header>
+              <div class="histogram" id="histogram" aria-label="Histogram of lights per tile"></div>
+              <div class="heat-legend">
+                <span>0</span>
+                <div class="legend-gradient"></div>
+                <span id="heatLegendMax">16</span>
+                <small>LOW</small><small>HIGH</small>
+              </div>
+            </article>
+
+            <article class="analysis-card boundary-card">
+              <header class="mini-heading">
+                <div>
+                  <span class="panel-index">04</span>
+                  <h3>BOUNDARY WATCH</h3>
+                </div>
+                <span class="status-pill good" id="boundaryStatus">STABLE</span>
+              </header>
+              <div class="boundary-visual">
+                <div class="boundary-track">
+                  <span class="tile-a">TILE A</span>
+                  <span class="tile-line"></span>
+                  <span class="tile-b">TILE B</span>
+                  <i id="probeDot"></i>
+                </div>
+                <p>Conservative AABBs keep every contributing light resident through the crossing.</p>
+              </div>
+              <div class="boundary-stats">
+                <div><b id="crossingCount">0</b><span>EDGE CROSSINGS</span></div>
+                <div><b id="crossingError">0</b><span>FLICKER / LEAK</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <aside class="inspector" aria-label="Performance and verification">
+          <section class="metric-hero">
+            <div class="metric-label"><span>PER-PIXEL MATCH</span><i class="status-dot"></i></div>
+            <div class="metric-value">
+              <strong id="matchPercent">100.000</strong><span>%</span>
+            </div>
+            <p><b id="mismatchCount">0</b> mismatched pixels / <span id="comparedPixels">479,232</span> compared</p>
+            <div class="metric-bar"><i id="matchBar"></i></div>
+          </section>
+
+          <section class="inspector-section">
+            <header class="inspector-heading">
+              <h3>CPU SUBMIT</h3>
+              <span id="frameTime">0.0 MS</span>
+            </header>
+            <div class="cost-list">
+              <div class="cost-row">
+                <div><span class="cost-swatch coral"></span><span>Tiled light tests</span></div>
+                <b id="tiledTests">0</b>
+              </div>
+              <div class="cost-row">
+                <div><span class="cost-swatch slate"></span><span>Reference tests</span></div>
+                <b id="referenceTests">0</b>
+              </div>
+              <div class="cost-row total">
+                <div><span>Work saved</span></div>
+                <b id="savedPercent">0%</b>
+              </div>
+            </div>
+          </section>
+
+          <section class="inspector-section">
+            <header class="inspector-heading">
+              <h3>TILE OCCUPANCY</h3>
+              <span id="occupiedTiles">0 / 117</span>
+            </header>
+            <div class="occupancy-row">
+              <div><b id="avgTileLoad">0.0</b><span>AVG / TILE</span></div>
+              <div><b id="p95TileLoad">0</b><span>P95 / TILE</span></div>
+              <div><b id="overflowCount">0</b><span>OVERFLOW</span></div>
+            </div>
+          </section>
+
+          <section class="inspector-section pipeline-section">
+            <header class="inspector-heading">
+              <h3>PIPELINE</h3>
+              <span>PER FRAME</span>
+            </header>
+            <ol class="pipeline-list">
+              <li>
+                <span>1</span>
+                <div><b>Build tile AABBs</b><p>Light radius expanded conservatively.</p></div>
+              </li>
+              <li>
+                <span>2</span>
+                <div><b>Compact light indices</b><p>Sorted once, stable accumulation order.</p></div>
+              </li>
+              <li>
+                <span>3</span>
+                <div><b>Shade from tile list</b><p>One bounded loop per fragment.</p></div>
+              </li>
+            </ol>
+          </section>
+
+          <section class="verification-card">
+            <div class="verification-icon">✓</div>
+            <div>
+              <b>Reference verified live</b>
+              <p>Independent all-light path, compared every 8th frame.</p>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="site-footer">
+        <span>TILEFIELD / WEBGL2</span>
+        <span class="footer-center">NO COMPUTE SHADERS · CONSERVATIVE CULLING · EXACT COMPARISON</span>
+        <span>BUILD 2026.11.18</span>
+      </footer>
+    </div>
+
+    <div class="webgl-error" id="webglError" hidden>
+      <div>
+        <p>WEBGL2 UNAVAILABLE</p>
+        <h2>This demo requires WebGL2.</h2>
+        <span>Enable hardware acceleration or open it in a current Chromium / Firefox build.</span>
+      </div>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
