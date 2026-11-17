@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>三级联阴影贴图 (CSM) 演示</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #222; }
+  #gl { width: 100vw; height: 100vh; display: block; }
+  #hud {
+    position: fixed; top: 8px; left: 8px; color: #cfe3ff;
+    font: 12px/1.5 ui-monospace, Consolas, monospace;
+    background: rgba(0, 0, 0, 0.55); padding: 8px 10px;
+    white-space: pre; border-radius: 4px; pointer-events: none;
+  }
+  #help {
+    position: fixed; bottom: 8px; left: 8px; color: #9fb6d8;
+    font: 12px/1.5 ui-monospace, Consolas, monospace;
+    background: rgba(0, 0, 0, 0.45); padding: 6px 10px; border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="hud">loading…</div>
+<div id="help">WASD 移动 · Q/E 升降 · Shift 加速 · 拖拽鼠标转视角 · D 调试着色(级联/混合带) · T 自动扫掠跨越级联边界</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "csm-three-cascade-demo",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/csm.test.mjs",
+    "test:e2e": "node test/e2e.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}
