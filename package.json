@@ -1,0 +1,30 @@
+{
+  "name": "uid5-0033",
+  "version": "1.0.0",
+  "description": "WebGL2 MSAA renderbuffer / resolve / depth guard demo",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "smoke": "node test/browser-smoke.mjs",
+    "serve": "python3 -m http.server 8123"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "playwright": "^1.65.1"
+  }
+}

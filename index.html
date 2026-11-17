@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WebGL2 MSAA 多重采样渲染演示</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>WebGL2 MSAA 渲染目标 · resolve · 深度检查</h1>
+    <div id="gl-info" class="gl-info">WebGL2 初始化中…</div>
+  </header>
+
+  <main class="layout">
+    <section class="stage">
+      <div class="canvas-wrap">
+        <canvas id="glcanvas" width="900" height="640"></canvas>
+      </div>
+      <div class="stage-hint">
+ 移动鼠标到画布上查看边缘像素的颜色组成；点击可锁定检查点。
+      </div>
+    </section>
+
+    <aside class="panel">
+      <section class="card">
+        <h2>采样模式</h2>
+        <div id="sample-buttons" class="btn-row">
+          <button data-samples="1" class="mode-btn active">无 MSAA (1x)</button>
+          <button data-samples="2" class="mode-btn">2x MSAA</button>
+          <button data-samples="4" class="mode-btn">4x MSAA</button>
+        </div>
+        <div class="btn-row">
+          <button id="btn-pause" class="sub-btn">暂停旋转</button>
+          <button id="btn-bug" class="sub-btn danger">模拟深度不清除（故障）</button>
+        </div>
+        <div id="max-samples" class="muted small"></div>
+      </section>
+
+      <section class="card">
+        <h2>帧时间</h2>
+        <table class="stat-table">
+          <tr><td>整帧（CPU）</td><td id="ft-total">–</td></tr>
+          <tr><td>几何渲染</td><td id="ft-geometry">–</td></tr>
+          <tr><td>resolve (blit)</td><td id="ft-resolve">–</td></tr>
+          <tr><td>上屏绘制</td><td id="ft-present">–</td></tr>
+          <tr><td>GPU 整帧</td><td id="ft-gpu">不可用</td></tr>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>显存占用（估算）</h2>
+        <table class="stat-table">
+          <tr><td>多重采样颜色</td><td id="mem-ms-color">–</td></tr>
+          <tr><td>多重采样深度</td><td id="mem-ms-depth">–</td></tr>
+          <tr><td>resolve 颜色纹理</td><td id="mem-color-tex">–</td></tr>
+          <tr><td>合计（相对 1x）</td><td id="mem-total">–</td></tr>
+        </table>
+        <div class="muted small">WebGL 无显存查询 API，按 RGBA8=4B、DEPTH_COMPONENT24=3B/采样估算。</div>
+      </section>
+
+      <section class="card">
+        <h2>深度安全检查</h2>
+        <ul class="check-list">
+          <li><span id="chk-resolve-depth" class="badge">…</span> resolve FBO 无深度附件</li>
+          <li><span id="chk-depth-clear" class="badge">…</span> 每帧几何渲染前清除深度</li>
+          <li><span id="chk-fbo-status" class="badge">…</span> 帧缓冲完整性</li>
+        </ul>
+        <button id="btn-depth-test" class="sub-btn">运行深度泄漏行为对比测试</button>
+        <div id="depth-test-result" class="small muted"></div>
+      </section>
+
+      <section class="card">
+        <h2>像素检查器</h2>
+        <canvas id="inspector" width="176" height="176" class="inspector-canvas"></canvas>
+        <div id="pixel-info" class="small mono"></div>
+      </section>
+
+      <section class="card">
+        <h2>形状一致性（全帧）</h2>
+        <button id="btn-shape" class="sub-btn">分析当前帧覆盖率</button>
+        <table class="stat-table">
+          <tr><td>背景像素</td><td id="shape-bg">–</td></tr>
+          <tr><td>纯前景像素</td><td id="shape-fg">–</td></tr>
+          <tr><td>边缘混合像素</td><td id="shape-edge">–</td></tr>
+          <tr><td>覆盖质量总和</td><td id="shape-mass">–</td></tr>
+          <tr><td>相对 1x 偏差</td><td id="shape-delta">–</td></tr>
+        </table>
+      </section>
+
+      <section class="card log-card">
+        <h2>事件日志</h2>
+        <ul id="log" class="log"></ul>
+      </section>
+    </aside>
+  </main>
+
+  <script type="module" src="js/main.js"></script>
+  </body>
+  </html>
