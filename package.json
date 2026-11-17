@@ -1,0 +1,9 @@
+{
+  "name": "webgpu-pass-profiler",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/profiler.test.mjs",
+    "serve": "python3 -m http.server 8080"
+  }
+}
