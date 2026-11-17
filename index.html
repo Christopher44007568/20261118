@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebGL2 网格测量查看器</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="labels"></div>
+
+  <aside id="panel">
+    <h1>表面测量</h1>
+
+    <section>
+      <h2>场景</h2>
+      <label>网格
+        <select id="meshSelect"></select>
+      </label>
+      <div class="row">
+        <label>缩放 X <input id="scaleX" type="number" step="0.1" value="1"></label>
+        <label>Y <input id="scaleY" type="number" step="0.1" value="1"></label>
+        <label>Z <input id="scaleZ" type="number" step="0.1" value="1"></label>
+      </div>
+      <label>顶点形变 <input id="deform" type="range" min="0" max="1" step="0.01" value="0"></label>
+      <div class="row">
+        <button id="btnSubdivide">细分(拓扑变更)</button>
+        <button id="btnCollapse">制造退化三角形</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>测量</h2>
+      <div class="row">
+        <button id="btnMeasure">开始测量(拾取两点)</button>
+        <button id="btnClear">清空</button>
+      </div>
+      <label class="check">
+        <input id="occlusionMode" type="checkbox">
+        被遮挡时显示虚线(否则隐藏标注)
+      </label>
+      <ul id="measureList"></ul>
+    </section>
+
+    <section>
+      <h2>存档</h2>
+      <div class="row">
+        <button id="btnSave">保存记录</button>
+        <button id="btnLoad">载入记录</button>
+      </div>
+      <input id="fileInput" type="file" accept="application/json" hidden>
+    </section>
+
+    <p id="hint">提示: 左键拖动旋转, 滚轮缩放, 右键平移。测量模式下点击网格表面放置锚点。</p>
+  </aside>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
