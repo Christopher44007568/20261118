@@ -1,0 +1,12 @@
+{
+  "name": "two-stage-visibility-culling-webgpu",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "原生 WebGPU 两阶段可见性裁剪：CPU 世界 AABB 剔除 + Compute Shader 视锥测试",
+  "scripts": {
+    "test:math": "node test/math.test.mjs",
+    "serve": "node test/serve.mjs",
+    "test:e2e": "node test/e2e-cdp.mjs"
+  }
+}

@@ -1,0 +1,10 @@
+<!DOCTYPE html><meta charset=utf-8><pre id=out>boot</pre>
+<script type=module>
+const L=[];
+L.push("gpu="+!!navigator.gpu);
+Promise.all([navigator.gpu.requestAdapter().then(a=>L.push("default adapter="+!!a+(a?" info="+JSON.stringify(a.info):"")).catch(e=>L.push("default err="+e.message)),
+navigator.gpu.requestAdapter({forceFallbackAdapter:true}).then(a=>L.push("fallback adapter="+!!a+(a?" info="+JSON.stringify(a.info):"")).catch(e=>L.push("fallback err="+e.message))]).then(()=>{
+document.getElementById("out").textContent=L.join("
+");
+document.body.dataset.done="1";});
+</script>

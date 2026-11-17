@@ -1,0 +1,87 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #0b0d12;
+  color: #e6e9ef;
+  font: 13px/1.5 system-ui, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  overflow: hidden;
+}
+
+#canvas { display: block; width: 100vw; height: 100vh; }
+
+#hud {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  width: 330px;
+  padding: 14px 16px;
+  background: rgba(16, 19, 27, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+}
+
+h1 { margin: 0 0 10px; font-size: 15px; font-weight: 650; }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.row span { color: #9aa4b5; }
+.row b { font-variant-numeric: tabular-nums; }
+
+.badge { padding: 1px 8px; border-radius: 999px; font-weight: 600; }
+.badge.pending { background: #3a3f4d; color: #c3cad8; }
+.badge.ok { background: #14361f; color: #58d98a; }
+.badge.bad { background: #3d1620; color: #ff7a8c; }
+
+.detail { margin-top: 8px; color: #9aa4b5; font-size: 12px; word-break: break-all; }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+button {
+  background: #232a38;
+  color: #dce2ee;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+button:hover { background: #2d3648; }
+
+.legend { margin-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.note { margin-top: 10px; font-size: 11px; color: #7d8799; }
+
+.report {
+  margin-top: 10px;
+  max-height: 260px;
+  overflow: auto;
+  padding: 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  background: #0e1118;
+}
+.report.ok { border: 1px solid #2e7d46; }
+.report.bad { border: 1px solid #a13346; }
+
+#fatal {
+  display: none;
+  position: fixed;
+  inset: 20% 20%;
+  padding: 20px;
+  background: #3d1620;
+  border: 1px solid #a13346;
+  border-radius: 10px;
+  color: #ffb3bf;
+}
