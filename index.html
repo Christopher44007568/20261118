@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <title>接触阴影（深度差）演示</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #101418; overflow: hidden; }
+    #app { width: 100%; height: 100%; display: block; }
+    #hud {
+      position: fixed; top: 10px; left: 10px; z-index: 10;
+      font: 12px/1.5 ui-monospace, Menlo, Consolas, monospace;
+      color: #d7e0ea; background: rgba(12, 16, 22, 0.78);
+      padding: 10px 12px; border-radius: 8px; white-space: pre;
+      pointer-events: none; min-width: 300px;
+    }
+    #help {
+      position: fixed; bottom: 10px; left: 10px; z-index: 10;
+      font: 12px/1.6 ui-monospace, Menlo, Consolas, monospace;
+      color: #9fb0c3; background: rgba(12, 16, 22, 0.6);
+      padding: 6px 10px; border-radius: 6px; pointer-events: none;
+    }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "./node_modules/three/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <canvas id="app"></canvas>
+  <div id="hud">loading…</div>
+  <div id="help">[1] 主视角  [2] 侧视图（检查接触点）  [空格] 悬空物升降  [S] 接触阴影开关</div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
