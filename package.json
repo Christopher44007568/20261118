@@ -1,0 +1,13 @@
+{
+  "name": "webgl2-deferred-shading",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node test/run-tests.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}

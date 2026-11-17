@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebGL2 延迟着色器 — G-Buffer / 前向对比</title>
+  <link rel="stylesheet" href="src/css/style.css">
+</head>
+<body>
+  <h1>WebGL2 延迟着色（Deferred Shading）</h1>
+  <div class="toolbar">
+    <div class="group" role="group" aria-label="渲染模式">
+      <button data-mode="deferred" class="active">延迟着色</button>
+      <button data-mode="forward">前向参考</button>
+      <button data-mode="debug">G-Buffer 调试</button>
+    </div>
+    <div class="group" id="debug-row" hidden>
+      <span>通道：</span>
+      <button data-debug="0">世界坐标</button>
+      <button data-debug="1" class="active">法线</button>
+      <button data-debug="2">反照率</button>
+      <button data-debug="3">粗糙度</button>
+      <button data-debug="4">深度</button>
+    </div>
+    <label class="group">
+      <input type="checkbox" id="sort-toggle" checked>
+      半透明背面到正面排序
+    </label>
+  </div>
+  <canvas id="gl" width="640" height="480"></canvas>
+  <p class="hint">
+    半透明玻璃片只在独立的前向混合 Pass 中绘制，不写入不透明 G-Buffer；
+    取消排序勾选可观察错误的半透明叠加顺序。
+  </p>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
