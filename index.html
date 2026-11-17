@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>程序化地形 · 四档 LOD 漫游</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: "Segoe UI", "PingFang SC", sans-serif; }
+  #app { position: fixed; inset: 0; }
+  #panel {
+    position: fixed; top: 12px; left: 12px; width: 280px;
+    background: rgba(12, 16, 22, 0.82); color: #dfe7ee;
+    border-radius: 10px; padding: 12px 14px; font-size: 13px;
+    backdrop-filter: blur(4px); user-select: none;
+  }
+  #panel h1 { font-size: 15px; margin: 0 0 8px; }
+  #panel hr { border: none; border-top: 1px solid rgba(255,255,255,0.15); margin: 8px 0; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; }
+  .row { margin: 6px 0; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  button {
+    background: #2b6cb0; color: #fff; border: none; border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; font-size: 12px;
+  }
+  button:hover { background: #3182ce; }
+  label { cursor: pointer; }
+  #minimap { display: block; margin-top: 8px; border-radius: 6px; cursor: crosshair; }
+  #camInfo { margin-top: 8px; color: #9fb3c8; font-size: 12px; }
+  #modeLabel { color: #8fd3a7; }
+  #tooltip {
+    display: none; position: fixed; z-index: 10; pointer-events: none;
+    background: rgba(10, 14, 20, 0.92); color: #eaf2f8; font-size: 12px;
+    padding: 6px 9px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2);
+    line-height: 1.5;
+  }
+  #help { margin-top: 8px; font-size: 11px; color: #7d8fa1; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="panel">
+  <h1>程序化地形 · 4 级 LOD</h1>
+  <div id="modeLabel"></div>
+  <div class="row">
+    <button id="tourValley">山谷巡游</button>
+    <button id="tourRidge">山脊巡游</button>
+    <button id="tourFree">自由飞行</button>
+  </div>
+  <div class="row">
+    <label><input type="checkbox" id="wireToggle"> 线框叠加</label>
+  </div>
+  <div id="levelStats"></div>
+  <canvas id="minimap" width="220" height="220"></canvas>
+  <div id="camInfo"></div>
+  <div id="help">
+    WASD 移动 · Space/C 升降 · Shift 加速<br>
+    点击画面锁定鼠标视角 · 悬停小地图查看块详情
+  </div>
+</div>
+<div id="tooltip"></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
