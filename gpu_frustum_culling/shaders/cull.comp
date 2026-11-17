@@ -1,0 +1,65 @@
+#version 450
+
+// GPU frustum culling.
+// One invocation per instance. Visible instance indices are compacted into
+// VisibleIndices via an atomic counter; the same counter is stored as the
+// instanceCount of the VkDrawIndexedIndirectCommand in IndirectDraw.
+
+layout(local_size_x = 256) in;
+
+struct InstanceData {
+    vec4 center;   // xyz = world-space bounding-sphere center, w = radius
+    vec4 color;    // rgb = color, a unused
+};
+
+layout(set = 0, binding = 0) readonly buffer Instances {
+    InstanceData instances[];
+};
+
+layout(set = 0, binding = 1) buffer VisibleIndices {
+    uint visibleIndices[];
+};
+
+// VkDrawIndexedIndirectCommand
+layout(set = 0, binding = 2) buffer IndirectDraw {
+    uint indexCount;
+    uint instanceCount;
+    uint firstIndex;
+    int  vertexOffset;
+    uint firstInstance;
+};
+
+layout(std140, set = 0, binding = 3) uniform CullParams {
+    mat4 viewProj;
+    vec4 frustumPlanes[6]; // nx, ny, nz, d; dot(n, p) + d >= 0 inside
+    uint totalInstances;
+    uint gpuCullingEnabled;
+    uint pad0;
+    uint pad1;
+};
+
+bool insideFrustum(vec3 center, float radius) {
+    for (int i = 0; i < 6; ++i) {
+        vec4 plane = frustumPlanes[i];
+        if (dot(plane.xyz, center) + plane.w < -radius) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void main() {
+    uint instanceId = gl_GlobalInvocationID.x;
+    if (instanceId >= totalInstances) {
+        return;
+    }
+
+    InstanceData inst = instances[instanceId];
+    bool visible = (gpuCullingEnabled == 0u) ||
+                   insideFrustum(inst.center.xyz, inst.center.w);
+
+    if (visible) {
+        uint slot = atomicAdd(instanceCount, 1u);
+        visibleIndices[slot] = instanceId;
+    }
+}
