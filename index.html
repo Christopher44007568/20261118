@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>立方体光照探针 · 四点插值演示</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #101114;
+        font-family: system-ui, sans-serif;
+        color: #dde1e6;
+      }
+      #app {
+        position: fixed;
+        inset: 0;
+      }
+      .panel {
+        position: fixed;
+        background: rgba(16, 18, 22, 0.82);
+        border: 1px solid #2c2f36;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        backdrop-filter: blur(4px);
+      }
+      #left {
+        top: 12px;
+        left: 12px;
+        width: 210px;
+      }
+      #right {
+        top: 12px;
+        right: 12px;
+        width: 280px;
+      }
+      #modes button {
+        display: block;
+        width: 100%;
+        margin: 4px 0;
+        padding: 6px 8px;
+        background: #23262d;
+        color: #dde1e6;
+        border: 1px solid #3a3e47;
+        border-radius: 6px;
+        cursor: pointer;
+        text-align: left;
+      }
+      #modes button.on {
+        background: #2f5fb0;
+        border-color: #5e9bff;
+      }
+      #pause {
+        margin-top: 6px;
+        width: 100%;
+        padding: 5px;
+        background: #23262d;
+        color: #dde1e6;
+        border: 1px solid #3a3e47;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .hint {
+        margin-top: 8px;
+        color: #9aa0aa;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .probe-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 5px 0;
+      }
+      .pid {
+        width: 34px;
+        color: #ffd34d;
+      }
+      .bar {
+        flex: 1;
+        height: 10px;
+        background: #23262d;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .fill {
+        height: 100%;
+        background: linear-gradient(90deg, #2f8f5b, #69f0ae);
+        width: 0;
+      }
+      .pct {
+        width: 48px;
+        text-align: right;
+      }
+      .expo {
+        width: 74px;
+        color: #9aa0aa;
+        font-size: 12px;
+      }
+      .occ {
+        width: 34px;
+        color: #666;
+        font-size: 12px;
+      }
+      .occ.on {
+        color: #ff6b6b;
+        font-weight: 600;
+      }
+      #panel-title {
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+    </style>
+    <script type="importmap">
+      { "imports": { "three": "./vendor/three.module.js" } }
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <div class="panel" id="left">
+      <div id="modes">
+        <button data-mode="compare">三球对比</button>
+        <button data-mode="cell">逐探针</button>
+        <button data-mode="nearest">最近单探针</button>
+        <button data-mode="tet">四点插值</button>
+      </div>
+      <button id="pause">暂停</button>
+      <div class="hint">
+        拖动旋转视角，滚轮缩放。<br />
+        黄点 = 参与采样的探针；<br />
+        绿线 = 可见，红线 = 被墙体遮挡。<br />
+        反光球穿过房间角落，观察切换面处<br />
+        逐探针 / 最近单探针的跳变与四点插值的平滑过渡。
+      </div>
+    </div>
+    <div class="panel" id="right">
+      <div id="panel-title">参与插值的探针</div>
+      <div id="probe-rows"></div>
+    </div>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
