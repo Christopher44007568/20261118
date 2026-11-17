@@ -1,0 +1,5 @@
+[gl] 4.5 (Core Profile) Mesa 25.1.7-1ubuntu3 | llvmpipe (LLVM 20.1.8, 256 bits)
+== instanced grass renderer: 16 chunks/side, 128 density, 8 frames ==
+[wind-demo] temporal pixel change 9.170% (upper motion)
+[wind-demo] static-vs-wind pixel change 8.581%
+[wind-demo] root-band temporal change 0.0000% (must be ~0)

@@ -1,0 +1,4 @@
+mode,density,frames,avg_ms,p95_ms,min_ms,max_ms,draw_calls_per_frame,instances_per_frame,pop_events
+no-instancing,40,32,13.1542,14.9298,10.6106,15.8403,777.72,776.72,0
+static-instanced,40,32,12.5708,13.6402,10.7837,14.7144,60.47,776.72,0
+dynamic-wind,40,32,13.5258,15.6870,11.0997,17.6996,60.47,776.72,0

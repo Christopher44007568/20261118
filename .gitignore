@@ -1,0 +1,4 @@
+build/
+screenshots/*.ppm
+*.o
+*.out

@@ -1,0 +1,18 @@
+[gl] 4.5 (Core Profile) Mesa 25.1.7-1ubuntu3 | llvmpipe (LLVM 20.1.8, 256 bits)
+== instanced grass renderer: 16 chunks/side, 512 density, 32 frames ==
+
+mode                     avg_ms       p95_ms     min..max  draw_calls/fr instances/fr   pop_evts
+no-instancing            18.972       23.493  15.88.. 24.37         9799.0       9798.0          0
+static-instanced         18.584       20.845  16.29.. 22.21           60.2       9798.0          0
+dynamic-wind             18.813       20.602  16.75.. 22.84           60.2       9798.0          0
+
+wrote results/benchmark.csv
+
+[check] LOD density: instances 29696 -> 9792 (saved 67.0%)
+[check] silhouette coverage full=0.1531 lod=0.1773 delta=15.81%
+[check] terrain/foliage skyline continuity=100.00%
+[check] wind root-pin: changed ground-band pixels 0.000%
+[check] chunk hard-pop events with fade band: 0
+[check] chunk hard-pop events WITHOUT fade band: 60
+
+validation: silhouette=PASS wind-root=PASS no-pop=PASS
