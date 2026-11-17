@@ -1,0 +1,5 @@
+scene       PSNR before   PSNR after    delta
+grid             18.07        20.41    +2.34
+railings         19.68        23.71    +4.02
+gradient         95.21        95.21    +0.00
+text             21.65        22.59    +0.95
