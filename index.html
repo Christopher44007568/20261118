@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="基于 WebAssembly 的封闭三角网格并集、差集与交集运算"
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>WASM Mesh Boolean</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="ambient ambient-a"></div>
+      <div class="ambient ambient-b"></div>
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="eyebrow">ROBUST SOLID MODELING</p>
+            <h1>WASM Mesh Boolean</h1>
+          </div>
+        </div>
+        <div class="engine-state" id="engine-state">
+          <span class="pulse"></span>
+          <span id="engine-label">正在加载 WASM 内核</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="control-panel">
+          <section class="control-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-index">01</p>
+                <h2>测试网格</h2>
+              </div>
+              <span class="mini-tag">A / B</span>
+            </div>
+            <div class="scene-list" id="scene-list">
+              <button class="scene-button" type="button" data-scene="disjoint">
+                <span class="scene-dot dot-cyan"></span>
+                <span><strong>相离</strong><small>互不接触</small></span>
+              </button>
+              <button class="scene-button" type="button" data-scene="intersecting">
+                <span class="scene-dot dot-amber"></span>
+                <span><strong>相交</strong><small>旋转交叉</small></span>
+              </button>
+              <button class="scene-button" type="button" data-scene="coplanar">
+                <span class="scene-dot dot-rose"></span>
+                <span><strong>共面接触</strong><small>交叉对角剖分</small></span>
+              </button>
+            </div>
+            <p class="scene-caption" id="scene-caption"></p>
+          </section>
+
+          <section class="control-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-index">02</p>
+                <h2>布尔运算</h2>
+              </div>
+              <span class="mini-tag">BOOLEAN</span>
+            </div>
+            <div class="operation-grid" id="operation-grid">
+              <button class="operation-button" type="button" data-operation="union">
+                <span class="operation-symbol">∪</span><span>并集</span>
+              </button>
+              <button class="operation-button" type="button" data-operation="difference">
+                <span class="operation-symbol">−</span><span>差集</span>
+              </button>
+              <button class="operation-button" type="button" data-operation="intersection">
+                <span class="operation-symbol">∩</span><span>交集</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="control-section stats-section">
+            <div class="section-heading">
+              <div>
+                <p class="section-index">03</p>
+                <h2>结果统计</h2>
+              </div>
+              <span class="timing" id="stat-time">— ms</span>
+            </div>
+            <div class="metric-grid">
+              <div class="metric">
+                <span>顶点数</span>
+                <strong id="stat-vertices">—</strong>
+              </div>
+              <div class="metric">
+                <span>三角形数</span>
+                <strong id="stat-triangles">—</strong>
+              </div>
+            </div>
+            <div class="bbox-card">
+              <div class="bbox-title">
+                <span>包围盒</span>
+                <span id="stat-volume">体积 —</span>
+              </div>
+              <div class="bbox-row"><span>X</span><code id="bbox-x">—</code></div>
+              <div class="bbox-row"><span>Y</span><code id="bbox-y">—</code></div>
+              <div class="bbox-row"><span>Z</span><code id="bbox-z">—</code></div>
+            </div>
+          </section>
+
+          <section class="validation-card" id="validation-card">
+            <div class="validation-head">
+              <span class="check-icon" id="check-icon">✓</span>
+              <div>
+                <strong id="check-title">等待运算</strong>
+                <p id="check-detail">WASM 内核加载后自动执行</p>
+              </div>
+            </div>
+            <div class="check-tags">
+              <span id="tag-closed">闭合拓扑</span>
+              <span id="tag-normals">法线朝外</span>
+              <span id="tag-internal">内部面已剔除</span>
+            </div>
+            <button class="export-button" id="export-obj" type="button" disabled>
+              <span>导出 OBJ 并重新加载检查</span>
+              <span class="button-arrow">↗</span>
+            </button>
+            <p class="obj-report" id="obj-report" hidden></p>
+          </section>
+        </aside>
+
+        <section class="viewport-shell">
+          <div class="viewport" id="viewport"></div>
+          <div class="view-badge">
+            <span class="view-badge-dot" id="view-dot"></span>
+            <span id="viewport-operation">并集 · A ∪ B</span>
+          </div>
+          <div class="result-legend">
+            <span><i class="legend-a"></i>输入 A</span>
+            <span><i class="legend-b"></i>输入 B</span>
+            <span><i class="legend-result"></i>结果外壳</span>
+          </div>
+          <div class="viewport-toolbar">
+            <label class="toggle">
+              <input type="checkbox" id="show-inputs" checked />
+              <span class="toggle-track"></span>
+              <span>显示输入网格</span>
+            </label>
+            <button type="button" id="reset-view">重置视角</button>
+          </div>
+          <div class="view-hint">拖拽旋转 · 滚轮缩放 · 右键平移</div>
+          <div class="loading-overlay visible" id="loading-overlay">
+            <span class="loading-ring"></span>
+            <p>初始化 WebAssembly 几何内核</p>
+          </div>
+          <div class="error-toast" id="error-toast" hidden></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
