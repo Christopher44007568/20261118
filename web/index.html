@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <title>WASM 软件光栅器 vs WebGL2</title>
+  <style>
+    body { background: #111; color: #ddd; font: 13px/1.5 monospace; margin: 16px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    figure { margin: 0; }
+    figcaption { text-align: center; margin-bottom: 4px; }
+    canvas { border: 1px solid #444; image-rendering: pixelated; }
+    #status { white-space: pre; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <figure><figcaption>WASM 软件光栅器 (颜色)</figcaption><canvas id="wasmColor" width="640" height="480"></canvas></figure>
+    <figure><figcaption>WebGL2 (颜色)</figcaption><canvas id="glCanvas" width="640" height="480"></canvas></figure>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <figure><figcaption>WASM 深度</figcaption><canvas id="wasmDepth" width="640" height="480"></canvas></figure>
+    <figure><figcaption>WebGL2 深度</figcaption><canvas id="glDepth" width="640" height="480"></canvas></figure>
+    <figure><figcaption>颜色差异 x8</figcaption><canvas id="diff" width="640" height="480"></canvas></figure>
+  </div>
+  <div id="status">loading...</div>
+  <script src="main.js"></script>
+</body>
+</html>
