@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Sparse Virtual Texture Demo</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #111; overflow: hidden; }
+  canvas { display: block; }
+  #hud {
+    position: fixed; top: 10px; left: 10px; color: #ddd;
+    font: 12px/1.5 monospace; background: rgba(0,0,0,.55);
+    padding: 8px 10px; border-radius: 6px; white-space: pre; pointer-events: none;
+  }
+  #help {
+    position: fixed; top: 10px; right: 10px; color: #999;
+    font: 11px/1.6 monospace; background: rgba(0,0,0,.55);
+    padding: 8px 10px; border-radius: 6px; white-space: pre; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="view"></canvas>
+<div id="hud"></div>
+<div id="help">拖拽平移 / 滚轮缩放（0.05x–16x）
+A 自动飞行  P 页表  R 驻留池  G 网格
+F 回退块高亮</div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
