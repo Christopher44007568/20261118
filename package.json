@@ -1,0 +1,11 @@
+{
+  "name": "webgpu-async-picking-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "WebGPU 异步对象拾取通道：整数 ID 附件 + 暂存缓冲池回读 + CPU 射线对照",
+  "scripts": {
+    "serve": "node test/serve.mjs",
+    "test": "node test/e2e.mjs"
+  }
+}
