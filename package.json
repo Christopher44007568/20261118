@@ -1,0 +1,12 @@
+{
+  "name": "vertex-attribute-compression",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "16-bit position / octahedral normal / 16-bit UV / sign-reconstructed tangent compression experiment",
+  "scripts": {
+    "test": "node test/run-tests.js && node test/octahedron-roundtrip.js && node test/webgl-smoke.js",
+    "report": "node test/run-tests.js",
+    "serve": "python3 -m http.server 8000"
+  }
+}
