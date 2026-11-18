@@ -1,0 +1,31 @@
+{
+  "name": "uid5-0063",
+  "version": "1.0.0",
+  "description": "透视投影深度精度对比实验：depth24 / depth32f / 反向深度的 z-fighting 与接触闪烁量化",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test:math": "node test/depth-math.test.js",
+    "test:sim": "node test/cpu-sim.test.js",
+    "test:browser": "node test/browser.e2e.test.js",
+    "test": "node test/depth-math.test.js && node test/cpu-sim.test.js && node test/browser.e2e.test.js",
+    "serve": "node -e \"const http=require('http'),fs=require('fs'),p=require('path');const t={'.html':'text/html','.js':'text/javascript','.css':'text/css'};http.createServer((q,s)=>{const f=p.join(process.cwd(),q.url==='/'?'index.html':q.url);fs.readFile(f,(e,d)=>{if(e){s.statusCode=404;return s.end('404')}s.setHeader('Content-Type',t[p.extname(f)]||'application/octet-stream');s.end(d)})}).listen(8080,()=>console.log('http://localhost:8080'))\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "dependencies": {
+    "puppeteer": "^25.18.1"
+  }
+}

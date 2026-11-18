@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>深度精度对比实验 · Depth24 / Depth32 / 反向深度</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>透视投影深度精度对比</h1>
+    <p>同一场景：近处薄片 + 远处墙面 + 墙面接触贴片。切换深度方案，观察条纹阴影与接触闪烁。</p>
+  </header>
+  <main>
+    <section class="stage">
+      <canvas id="glcanvas" width="960" height="600"></canvas>
+      <div id="webgl-error" class="hidden">当前环境不支持 WebGL2，请使用新版 Chrome / Edge / Firefox 打开。</div>
+    </section>
+    <aside class="panel">
+      <h2>渲染配置</h2>
+      <label class="control">
+        <span>深度方案</span>
+        <select id="depthMode">
+          <option value="depth24">depth24（24 位定点，标准 Z）</option>
+          <option value="depth32f">depth32（32 位浮点，标准 Z）</option>
+          <option value="reverse">reverse-z（32 位浮点，反向深度）</option>
+        </select>
+      </label>
+      <label class="control">
+        <span>近 / 远裁剪面预设</span>
+        <select id="rangePreset">
+          <option value="mild">温和 0.1 – 100（1:1,000）</option>
+          <option value="wide">拉远 0.1 – 1,000（1:10,000）</option>
+          <option value="extreme" selected>极端 0.01 – 10,000（1:1,000,000）</option>
+        </select>
+      </label>
+      <div class="control">
+        <span>近平面 n：<code id="nearLabel">0.01</code></span>
+        <input type="range" id="nearInput" min="-4" max="2" step="0.05" value="-2" />
+      </div>
+      <div class="control">
+        <span>远平面 f：<code id="farLabel">10000</code></span>
+        <input type="range" id="farInput" min="1" max="6" step="0.05" value="4" />
+      </div>
+      <div class="control">
+        <span>接触缝隙（世界单位）：<code id="gapLabel">0.001</code></span>
+        <input type="range" id="gapInput" min="-6" max="1" step="0.1" value="-3" />
+      </div>
+      <div class="control">
+        <span>相机微抖动（量化步长倍数）：<code id="jitterLabel">1.5</code></span>
+        <input type="range" id="jitterInput" min="-1" max="1" step="0.1" value="0.18" />
+      </div>
+      <div class="control check">
+        <label><input type="checkbox" id="animateJitter" checked /> 自动逐帧抖动</label>
+        <label><input type="checkbox" id="showStripes" /> 显示深度分层条纹</label>
+      </div>
+      <div class="buttons">
+        <button id="stepBtn">单步一帧</button>
+        <button id="batchBtn">运行全部 9 组测试</button>
+        <button id="exportBtn">导出 CSV</button>
+      </div>
+      <h2>实时读数</h2>
+      <dl id="liveStats" class="stats"></dl>
+      <h2>批量测试结果</h2>
+      <div class="table-wrap">
+        <table id="batchTable">
+          <thead>
+            <tr>
+              <th>深度方案</th>
+              <th>裁剪比</th>
+              <th>Δ存储深度</th>
+              <th>量化 LSB</th>
+              <th>LSB 倍数</th>
+              <th>Z-fighting 像素</th>
+              <th>闪烁像素</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </aside>
+  </main>
+  <section class="notes">
+    <h2>实验说明</h2>
+    <ul>
+      <li>远处墙面位于远平面 90% 处，墙前一片仅相距“接触缝隙”的贴片，二者投影在同一像素上竞争深度。</li>
+      <li>近处薄片位于近平面约 5 倍距离处，用来检验近处物体是否仍被正常绘制。</li>
+      <li>“Z-fighting 像素”统计两表面量化后深度完全相同的像素；“闪烁像素”统计相机微抖动前后归属发生切换的像素。</li>
+      <li>深度分层条纹把连续深度按量化桶着色，桶越粗条纹越宽，直观显示远端精度损失。</li>
+    </ul>
+  </section>
+  <script src="js/math.js"></script>
+  <script src="js/cpu-sim.js"></script>
+  <script src="js/cpu-view.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
