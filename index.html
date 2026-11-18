@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Cook-Torrance 微表面模型可视化</title>
+<style>
+  :root { --bg:#14161a; --panel:#1d2026; --fg:#d8dce3; --dim:#8a919d; --accent:#5aa9ff; --bad:#ff5a6a; --ok:#4cd07d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:13px/1.5 "Segoe UI",system-ui,sans-serif; }
+  header { padding:10px 16px; border-bottom:1px solid #2a2e36; }
+  header h1 { margin:0; font-size:16px; font-weight:600; }
+  header p { margin:2px 0 0; color:var(--dim); }
+  main { display:flex; gap:12px; padding:12px 16px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { background:var(--panel); border:1px solid #2a2e36; border-radius:8px; padding:12px; }
+  #view { display:block; border-radius:6px; image-rendering:pixelated; }
+  .legend { display:flex; gap:16px; margin-top:6px; color:var(--dim); }
+  .legend b { color:var(--fg); font-weight:600; }
+  fieldset { border:1px solid #2a2e36; border-radius:6px; margin:0 0 10px; padding:8px 10px; }
+  legend { color:var(--accent); padding:0 4px; }
+  label { display:block; margin:6px 0 2px; color:var(--dim); }
+  select, input[type=range] { width:100%; }
+  select { background:#12141a; color:var(--fg); border:1px solid #2a2e36; border-radius:4px; padding:3px; }
+  .row { display:flex; justify-content:space-between; }
+  .row .val { color:var(--accent); font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; font-variant-numeric:tabular-nums; }
+  th, td { padding:2px 6px; text-align:right; border-bottom:1px solid #262a32; white-space:nowrap; }
+  th { color:var(--dim); font-weight:600; text-align:right; }
+  td:first-child, th:first-child { text-align:left; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:#ffb84c; }
+  button { background:#24344d; color:var(--fg); border:1px solid #35507a; border-radius:5px; padding:5px 12px; cursor:pointer; }
+  button:hover { background:#2c4060; }
+  #sweepOut { max-height:220px; overflow:auto; font-size:12px; }
+  .col { display:flex; flex-direction:column; gap:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cook-Torrance 微表面 BRDF 可视化</h1>
+  <p>f = D·F·G / (4·(n·l)·(n·v)) + k<sub>d</sub>·albedo/π — 左半屏为所选近似，右半屏为参考公式 (GGX + Smith + Schlick)</p>
+</header>
+<main>
+  <div class="col">
+    <div class="panel">
+      <canvas id="view" width="640" height="400"></canvas>
+      <div class="legend">
+        <span><b>左</b> 所选近似组合</span>
+        <span><b>右</b> 参考公式</span>
+        <span id="fbStats"></span>
+      </div>
+    </div>
+    <div class="panel">
+      <fieldset>
+        <legend>数值探针（点击画面移动探针）</legend>
+        <table id="probeTable">
+          <thead><tr><th>项</th><th>近似值</th><th>参考值</th><th>状态</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </fieldset>
+    </div>
+  </div>
+  <div class="col" style="width:300px">
+    <div class="panel">
+      <fieldset>
+        <legend>近似函数选择</legend>
+        <label>法线分布 D (NDF)</label>
+        <select id="selNdf">
+          <option value="ggx">GGX / Trowbridge-Reitz</option>
+          <option value="beckmann">Beckmann</option>
+          <option value="blinn">Blinn-Phong</option>
+        </select>
+        <label>几何遮蔽 G</label>
+        <select id="selGeo">
+          <option value="smith">Smith (GGX 精确)</option>
+          <option value="schlick">Schlick-GGX</option>
+          <option value="cooktorrance">Cook-Torrance</option>
+          <option value="implicit">Implicit</option>
+        </select>
+        <label>菲涅耳 F</label>
+        <select id="selFresnel">
+          <option value="schlick">Schlick</option>
+          <option value="exact">精确菲涅耳 (由 F0 推 η)</option>
+          <option value="none">无 (F = F0)</option>
+        </select>
+      </fieldset>
+      <fieldset>
+        <legend>材质参数</legend>
+        <label class="row"><span>粗糙度 roughness（球体）</span><span class="val" id="vRough"></span></label>
+        <input type="range" id="rough" min="0.02" max="1" step="0.005" value="0.3">
+        <label class="row"><span>金属度 metallic</span><span class="val" id="vMetal"></span></label>
+        <input type="range" id="metal" min="0" max="1" step="0.01" value="1">
+        <label class="row"><span>平板粗糙度（低粗糙度）</span><span class="val" id="vPlaneRough"></span></label>
+        <input type="range" id="planeRough" min="0.02" max="1" step="0.005" value="0.06">
+        <label class="row"><span>视角（掠射角控制，度）</span><span class="val" id="vElev"></span></label>
+        <input type="range" id="elev" min="5" max="85" step="1" value="35">
+      </fieldset>
+      <fieldset>
+        <legend>极端参数校验</legend>
+        <button id="btnSweep">运行全参数扫描</button>
+        <div id="sweepOut" style="margin-top:8px"></div>
+      </fieldset>
+    </div>
+  </div>
+</main>
+<script src="js/brdf.js"></script>
+<script src="js/render.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
