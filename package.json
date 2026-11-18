@@ -1,0 +1,12 @@
+{
+  "name": "pipeline-cache-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "多材质变体场景的 shader 管线缓存：预热、LRU 淘汰、错误回退与命中率监控",
+  "scripts": {
+    "test": "node test/runTests.js",
+    "test:browser": "node test/browserSmoke.mjs",
+    "serve": "node tools/serve.js"
+  }
+}

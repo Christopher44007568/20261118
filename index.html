@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>多材质变体 · Shader 管线缓存</title>
+  <link rel="stylesheet" href="web/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Shader 管线缓存 · 多材质变体场景</h1>
+      <p class="sub">变体键 = 着色器族 × 光照 × 阴影 × 贴花 × 透明模式</p>
+    </div>
+    <div class="global-toggles">
+      <label>光照
+        <select id="lightingSelect">
+          <option value="lit" selected>lit（受光）</option>
+          <option value="unlit">unlit（无光照）</option>
+        </select>
+      </label>
+      <label>阴影
+        <select id="shadowSelect">
+          <option value="on" selected>on</option>
+          <option value="off">off</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel scene-panel">
+      <div class="panel-head">
+        <h2>场景 · <span id="cameraLabel">主广场视角</span></h2>
+        <div class="camera-buttons" id="cameraButtons"></div>
+      </div>
+      <div class="viewport" id="viewport"></div>
+      <div class="warmup-bar">
+        <span class="bar-label">预热进度</span>
+        <div class="progress-track"><div class="progress-fill" id="warmupProgress"></div></div>
+        <span id="warmupProgressText" class="bar-text">0 / 0</span>
+      </div>
+    </section>
+
+    <section class="panel metrics-panel">
+      <h2>实时指标</h2>
+      <div class="metric-grid">
+        <div class="metric">
+          <span class="metric-name">编译队列</span>
+          <span class="metric-value" id="mQueueDepth">0</span>
+          <span class="metric-foot">in-flight 变体</span>
+        </div>
+        <div class="metric">
+          <span class="metric-name">命中率</span>
+          <span class="metric-value" id="mHitRate">—</span>
+          <span class="metric-foot" id="mHitMiss">命中 0 / 未命中 0</span>
+        </div>
+        <div class="metric">
+          <span class="metric-name">首次可见延迟</span>
+          <span class="metric-value" id="mFvd">—</span>
+          <span class="metric-foot">本视角 FVD (ms)</span>
+        </div>
+        <div class="metric">
+          <span class="metric-name">缓存占用</span>
+          <span class="metric-value" id="mSize">0 / 12</span>
+          <span class="metric-foot" id="mEvictions">淘汰 0</span>
+        </div>
+        <div class="metric">
+          <span class="metric-name">真实编译</span>
+          <span class="metric-value" id="mCompiles">0</span>
+          <span class="metric-foot">驱动调用次数</span>
+        </div>
+        <div class="metric">
+          <span class="metric-name">失败 / 回退</span>
+          <span class="metric-value" id="mFails">0 / 0</span>
+          <span class="metric-foot">编译失败 → 保守管线</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="btnFailVariant" class="btn btn-warn">注入失败变体（招牌贴花）</button>
+        <button id="btnClearFail" class="btn">清除失败标记</button>
+        <label class="capacity-ctl">缓存容量
+          <input id="capacityInput" type="number" min="2" max="40" value="12" />
+        </label>
+        <button id="btnReset" class="btn btn-danger">重置缓存</button>
+      </div>
+
+      <h3>事件日志</h3>
+      <ul class="event-log" id="eventLog"></ul>
+    </section>
+
+    <section class="panel cache-panel">
+      <h2>缓存条目（左旧 → 右新，LRU）</h2>
+      <div class="cache-list" id="cacheList"></div>
+      <h3>材质状态</h3>
+      <div class="material-grid" id="materialGrid"></div>
+    </section>
+  </main>
+
+  <script type="module" src="web/main.js"></script>
+</body>
+</html>
