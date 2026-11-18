@@ -1,0 +1,4 @@
+node_modules/
+.browser/
+artifacts/*.png
+artifacts/test-results.json

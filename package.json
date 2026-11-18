@@ -1,0 +1,26 @@
+{
+  "name": "screen-space-outline",
+  "version": "1.0.0",
+  "description": "Depth/normal based screen-space outline (three.js) with headless tests",
+  "main": "index.js",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node test/run-tests.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "dependencies": {
+    "puppeteer": "^25.18.1",
+    "three": "^0.160.0"
+  }
+}
