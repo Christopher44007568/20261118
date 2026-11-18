@@ -1,0 +1,148 @@
+#version 460
+
+layout(local_size_x = 64) in;
+
+layout(std140, set = 0, binding = 0) uniform FrameBuffer {
+    mat4 view;
+    mat4 inverseView;
+    vec4 cameraPosition;
+    vec4 screenSize;
+    vec4 clusterGrid;
+    vec4 depthParams;
+    vec4 lightParams;
+} frame;
+
+struct Light {
+    vec4 positionRadius;
+    vec4 colorIntensity;
+};
+
+layout(std430, set = 0, binding = 1) readonly buffer LightBuffer {
+    Light lights[];
+};
+
+layout(std430, set = 0, binding = 2) buffer ClusterCountBuffer {
+    uint clusterCounts[];
+};
+
+layout(std430, set = 0, binding = 3) buffer ClusterLightBuffer {
+    uint clusterLightIndices[];
+};
+
+layout(std430, set = 0, binding = 4) buffer CounterBuffer {
+    uint updatedClusters;
+    uint unchangedClusters;
+    uint nonEmptyClusters;
+    uint totalLightReferences;
+    uint maxLightsPerCluster;
+    uint reserved0;
+    uint reserved1;
+    uint reserved2;
+} counters;
+
+const uint MAX_CLUSTER_LIGHTS = 128u;
+
+bool sphereIntersectsAabb(vec3 center, float radius, vec3 boxMin, vec3 boxMax) {
+    vec3 closest = clamp(center, boxMin, boxMax);
+    vec3 delta = center - closest;
+    return dot(delta, delta) <= radius * radius;
+}
+
+void main() {
+    const uint clusterId = gl_GlobalInvocationID.x;
+    const uint clusterCount = uint(frame.lightParams.z);
+    if (clusterId >= clusterCount) {
+        return;
+    }
+
+    const uint tilesX = uint(frame.clusterGrid.x);
+    const uint tilesY = uint(frame.clusterGrid.y);
+    const uint slices = uint(frame.clusterGrid.z);
+    const uint tilePixels = uint(frame.clusterGrid.w);
+
+    const uint tileX = clusterId % tilesX;
+    const uint row = clusterId / tilesX;
+    const uint tileY = row % tilesY;
+    const uint slice = row / tilesY;
+
+    const float width = frame.screenSize.x;
+    const float height = frame.screenSize.y;
+    const float nearPlane = frame.depthParams.x;
+    const float farPlane = frame.depthParams.y;
+    const float logDepthRatio = frame.depthParams.z;
+    const float tanHalfFovY = frame.depthParams.w;
+    const float tanHalfFovX = tanHalfFovY * (width / height);
+
+    const float pixelX0 = float(tileX * tilePixels);
+    const float pixelX1 = min(float((tileX + 1u) * tilePixels), width);
+    const float pixelY0 = float(tileY * tilePixels);
+    const float pixelY1 = min(float((tileY + 1u) * tilePixels), height);
+
+    const float ndcX0 = 2.0 * pixelX0 / width - 1.0;
+    const float ndcX1 = 2.0 * pixelX1 / width - 1.0;
+    const float ndcYTop = 1.0 - 2.0 * pixelY0 / height;
+    const float ndcYBottom = 1.0 - 2.0 * pixelY1 / height;
+
+    const float depth0 = nearPlane * exp(logDepthRatio * float(slice) / float(slices));
+    const float depth1 = nearPlane * exp(logDepthRatio * float(slice + 1u) / float(slices));
+
+    vec3 boxMin = vec3(1e20);
+    vec3 boxMax = vec3(-1e20);
+    for (uint sx = 0u; sx < 2u; ++sx) {
+        float ndcX = sx == 0u ? ndcX0 : ndcX1;
+        for (uint sy = 0u; sy < 2u; ++sy) {
+            float ndcY = sy == 0u ? ndcYBottom : ndcYTop;
+            for (uint sz = 0u; sz < 2u; ++sz) {
+                float depth = sz == 0u ? depth0 : depth1;
+                vec3 corner = vec3(
+                    ndcX * tanHalfFovX * depth,
+                    ndcY * tanHalfFovY * depth,
+                    -depth);
+                boxMin = min(boxMin, corner);
+                boxMax = max(boxMax, corner);
+            }
+        }
+    }
+
+    uint candidateLights[MAX_CLUSTER_LIGHTS];
+    uint candidateCount = 0u;
+    const uint lightCount = uint(frame.lightParams.x);
+    for (uint i = 0u; i < lightCount; ++i) {
+        vec3 viewCenter = (frame.view * vec4(lights[i].positionRadius.xyz, 1.0)).xyz;
+        float radius = lights[i].positionRadius.w;
+        if (sphereIntersectsAabb(viewCenter, radius + 1e-4, boxMin, boxMax)) {
+            if (candidateCount < MAX_CLUSTER_LIGHTS) {
+                candidateLights[candidateCount++] = i;
+            }
+        }
+    }
+
+    const uint listBase = clusterId * MAX_CLUSTER_LIGHTS;
+    const uint previousCount = min(clusterCounts[clusterId], MAX_CLUSTER_LIGHTS);
+    bool unchanged = previousCount == candidateCount;
+    if (unchanged) {
+        for (uint i = 0u; i < candidateCount; ++i) {
+            if (clusterLightIndices[listBase + i] != candidateLights[i]) {
+                unchanged = false;
+                break;
+            }
+        }
+    }
+
+    if (!unchanged) {
+        clusterCounts[clusterId] = candidateCount;
+        for (uint i = 0u; i < candidateCount; ++i) {
+            clusterLightIndices[listBase + i] = candidateLights[i];
+        }
+        atomicAdd(counters.updatedClusters, 1u);
+    } else {
+        atomicAdd(counters.unchangedClusters, 1u);
+    }
+
+    if (candidateCount > 0u) {
+        atomicAdd(counters.nonEmptyClusters, 1u);
+        atomicAdd(counters.totalLightReferences, candidateCount);
+        atomicMax(counters.maxLightsPerCluster, candidateCount);
+    }
+}
+

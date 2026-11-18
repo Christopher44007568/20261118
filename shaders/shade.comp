@@ -1,0 +1,109 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(std140, set = 0, binding = 0) uniform FrameBuffer {
+    mat4 view;
+    mat4 inverseView;
+    vec4 cameraPosition;
+    vec4 screenSize;
+    vec4 clusterGrid;
+    vec4 depthParams;
+    vec4 lightParams;
+} frame;
+
+struct Light {
+    vec4 positionRadius;
+    vec4 colorIntensity;
+};
+
+layout(std430, set = 0, binding = 1) readonly buffer LightBuffer {
+    Light lights[];
+};
+
+layout(std430, set = 0, binding = 2) readonly buffer ClusterCountBuffer {
+    uint clusterCounts[];
+};
+
+layout(std430, set = 0, binding = 3) readonly buffer ClusterLightBuffer {
+    uint clusterLightIndices[];
+};
+
+layout(std430, set = 0, binding = 5) writeonly buffer OutputBuffer {
+    vec4 pixels[];
+};
+
+layout(push_constant) uniform ShadeMode {
+    uint mode;
+} push;
+
+const uint MAX_CLUSTER_LIGHTS = 128u;
+
+#include "scene.glsl"
+
+vec3 shadeSurface(Hit hit, uint mode, uint clusterIndex) {
+    vec3 result = hit.albedo * vec3(0.035, 0.045, 0.065);
+
+    if (mode == 0u) {
+        uint count = min(clusterCounts[clusterIndex], MAX_CLUSTER_LIGHTS);
+        uint listBase = clusterIndex * MAX_CLUSTER_LIGHTS;
+        for (uint i = 0u; i < count; ++i) {
+            uint lightIndex = clusterLightIndices[listBase + i];
+            result += evaluatePointLight(hit, lights[lightIndex]);
+        }
+    } else {
+        uint lightCount = uint(frame.lightParams.x);
+        for (uint i = 0u; i < lightCount; ++i) {
+            result += evaluatePointLight(hit, lights[i]);
+        }
+    }
+    return result;
+}
+
+void main() {
+    ivec2 pixelCoord = ivec2(gl_GlobalInvocationID.xy);
+    uint width = uint(frame.screenSize.x);
+    uint height = uint(frame.screenSize.y);
+    if (pixelCoord.x >= int(width) || pixelCoord.y >= int(height)) {
+        return;
+    }
+
+    vec2 pixel = vec2(pixelCoord) + vec2(0.5);
+    float aspect = float(width) / float(height);
+    float tanHalfFovY = frame.depthParams.w;
+    vec2 viewDirection = vec2(
+        (2.0 * pixel.x / float(width) - 1.0) * tanHalfFovY * aspect,
+        (1.0 - 2.0 * pixel.y / float(height)) * tanHalfFovY);
+    vec3 rayDirection = normalize(
+        (frame.inverseView * vec4(viewDirection.x, viewDirection.y, -1.0, 0.0)).xyz);
+    vec3 rayOrigin = frame.cameraPosition.xyz;
+    Hit hit = traceScene(rayOrigin, rayDirection);
+
+    vec3 color;
+    if (!hit.valid) {
+        color = backgroundColor(rayDirection);
+    } else {
+        uint clusterIndex = 0u;
+        if (push.mode == 0u) {
+            vec3 viewPosition = (frame.view * vec4(hit.position, 1.0)).xyz;
+            float tilePixels = frame.clusterGrid.w;
+            uint tilesX = uint(frame.clusterGrid.x);
+            uint tilesY = uint(frame.clusterGrid.y);
+            uint slices = uint(frame.clusterGrid.z);
+            uint tileX = min(uint(pixelCoord.x) / uint(tilePixels), tilesX - 1u);
+            uint tileY = min(uint(pixelCoord.y) / uint(tilePixels), tilesY - 1u);
+            float depth = max(-viewPosition.z, frame.depthParams.x);
+            float normalizedDepth =
+                log(depth / frame.depthParams.x) / frame.depthParams.z;
+            uint slice =
+                min(uint(max(normalizedDepth, 0.0) * float(slices)), slices - 1u);
+            clusterIndex = (slice * tilesY + tileY) * tilesX + tileX;
+        }
+        color = shadeSurface(hit, push.mode, clusterIndex);
+    }
+
+    uint pixelIndex = uint(pixelCoord.y) * width + uint(pixelCoord.x);
+    pixels[pixelIndex] = vec4(color, 1.0);
+}
+
