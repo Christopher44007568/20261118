@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "release": {
+      "outFile": "public/baker.wasm",
+      "optimizeLevel": 3,
+      "shrinkLevel": 1,
+      "runtime": "stub",
+      "noAssert": true
+    }
+  }
+}

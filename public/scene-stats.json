@@ -1,0 +1,16 @@
+{
+  "low": {
+    "vertices": 24,
+    "triangles": 12,
+    "uvIslands": 6
+  },
+  "hard": {
+    "vertices": 24,
+    "triangles": 12
+  },
+  "rounded": {
+    "vertices": 10086,
+    "triangles": 19200,
+    "segmentsPerSide": 40
+  }
+}

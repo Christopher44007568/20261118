@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WASM 高模到低模法线烘焙器</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="eyebrow">WASM / WEBGL2 NORMAL BAKER</p>
+            <h1>高模到低模法线烘焙器</h1>
+          </div>
+        </div>
+        <div class="topbar-status">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText">正在加载 WASM 索引…</span>
+          <span class="status-time" id="statusTime">—</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="panel controls-panel">
+          <section class="control-section">
+            <div class="section-heading">
+              <span>高模场景</span>
+              <span class="section-index">01</span>
+            </div>
+            <div class="scenario-tabs" id="scenarioTabs">
+              <button class="scenario-card active" data-scenario="hard">
+                <span class="scenario-icon hard"></span>
+                <strong>硬边箱体</strong>
+                <small>12 tris · 面法线</small>
+              </button>
+              <button class="scenario-card" data-scenario="rounded">
+                <span class="scenario-icon rounded"></span>
+                <strong>圆角箱体</strong>
+                <small>19.2k tris · 平滑法线</small>
+              </button>
+            </div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-heading">
+              <span>投射方向</span>
+              <span class="section-index">02</span>
+            </div>
+            <div class="segmented" id="projectionControl">
+              <button class="active" data-value="cage">包围笼</button>
+              <button data-value="nearest">最近表面</button>
+            </div>
+            <p class="help-text" id="projectionHelp">
+              笼顶点沿低模平滑拐角法线外扩，射线方向取像素点到笼的插值方向。
+            </p>
+          </section>
+
+          <section class="control-section sliders">
+            <div class="slider-row">
+              <label for="rayDistance">射线距离 <output id="rayDistanceValue">0.40</output></label>
+              <input id="rayDistance" type="range" min="0.08" max="0.45" step="0.005" value="0.40" />
+              <div class="range-scale"><span>0.08</span><span>高模间隙 ≈ 0.17</span><span>0.45</span></div>
+            </div>
+            <div class="slider-row">
+              <label for="cageOffset">笼偏移 <output id="cageOffsetValue">0.20</output></label>
+              <input id="cageOffset" type="range" min="0.04" max="0.32" step="0.005" value="0.20" />
+            </div>
+            <div class="slider-row">
+              <label for="weightScale">距离权重 <output id="weightScaleValue">8.0</output></label>
+              <input id="weightScale" type="range" min="0" max="20" step="0.5" value="8" />
+            </div>
+            <div class="slider-row compact">
+              <label for="maxHits">最大命中数 <output id="maxHitsValue">8</output></label>
+              <input id="maxHits" type="range" min="1" max="16" step="1" value="8" />
+            </div>
+          </section>
+
+          <section class="control-section">
+            <div class="section-heading">
+              <span>输出分辨率</span>
+              <span class="section-index">03</span>
+            </div>
+            <div class="segmented resolution" id="resolutionControl">
+              <button data-value="256">256²</button>
+              <button class="active" data-value="512">512²</button>
+              <button data-value="1024">1024²</button>
+            </div>
+          </section>
+
+          <section class="control-section toggles">
+            <label><input type="checkbox" id="showLow" checked /> 显示低模</label>
+            <label><input type="checkbox" id="showHigh" checked /> 显示高模壳</label>
+            <label><input type="checkbox" id="showWire" checked /> 高模线框</label>
+            <label><input type="checkbox" id="showBake" checked /> 应用烘焙法线</label>
+          </section>
+
+          <div class="control-actions">
+            <button class="primary-button" id="bakeCurrent">烘焙当前场景</button>
+            <button class="secondary-button" id="bakeBoth">双场景分别烘焙</button>
+          </div>
+        </aside>
+
+        <section class="stage">
+          <div class="stage-toolbar">
+            <div class="segmented mini" id="normalMixControl">
+              <button data-value="0">光照</button>
+              <button class="active" data-value="0.55">叠加</button>
+              <button data-value="1">法线色</button>
+            </div>
+            <button class="icon-button" id="resetCamera" title="重置视角">↺ 视角</button>
+          </div>
+          <canvas id="viewport" aria-label="低模、高模与烘焙结果三维叠加视图"></canvas>
+          <div class="scene-badge">
+            <span class="live-dot"></span>
+            <span id="sceneBadgeLabel">硬边箱体 / 包围笼</span>
+          </div>
+          <div class="legend">
+            <span><i class="swatch low"></i>低模 + 烘焙法线</span>
+            <span><i class="swatch high"></i>高模壳</span>
+          </div>
+          <div class="stage-hint">拖拽旋转 · 滚轮缩放</div>
+        </section>
+
+        <aside class="panel inspector-panel">
+          <div class="section-heading preview-heading">
+            <span>烘焙贴图</span>
+            <div class="segmented mini" id="previewModeControl">
+              <button class="active" data-value="normal">法线</button>
+              <button data-value="mask">覆盖</button>
+            </div>
+          </div>
+          <div class="preview-frame">
+            <canvas id="texturePreview" width="512" height="512"></canvas>
+            <span class="preview-axis">UV 0—1</span>
+          </div>
+          <p class="preview-caption" id="previewCaption">
+            切线空间法线。紫蓝色为中性值，覆盖遮罩中暗色为零命中。
+          </p>
+
+          <div class="metrics">
+            <div class="metric">
+              <span>命中覆盖率</span>
+              <strong id="metricCoverage">—</strong>
+            </div>
+            <div class="metric">
+              <span>平均射线距离</span>
+              <strong id="metricDistance">—</strong>
+            </div>
+            <div class="metric">
+              <span>零命中像素</span>
+              <strong id="metricZero">—</strong>
+            </div>
+            <div class="metric">
+              <span>平均 / 最大命中</span>
+              <strong id="metricHits">—</strong>
+            </div>
+            <div class="metric">
+              <span>BVH 三角测试</span>
+              <strong id="metricTriTests">—</strong>
+            </div>
+            <div class="metric">
+              <span>烘焙耗时</span>
+              <strong id="metricTime">—</strong>
+            </div>
+          </div>
+
+          <div class="compare">
+            <div class="section-heading">
+              <span>双场景检查</span>
+              <span class="section-index">A/B</span>
+            </div>
+            <table>
+              <thead>
+                <tr><th>高模</th><th>覆盖</th><th>平均距离</th><th>命中</th></tr>
+              </thead>
+              <tbody id="compareBody">
+                <tr><td>硬边</td><td>—</td><td>—</td><td>—</td></tr>
+                <tr><td>圆角</td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="notice" id="rayNotice" hidden></div>
+        </aside>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
