@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Still / Flux · Planar Reflection Study</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 20q6-10 12 0t12 0' fill='none' stroke='%23c8e87a' stroke-width='3'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="src/style.css" />
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<!-- top bar -->
+<header class="topbar">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 40 26" aria-hidden="true">
+      <path d="M2 18 q5 -8 10 0 t10 0 t10 0" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      <path d="M6 10 q4 -6 8 0 t8 0" fill="none" stroke="currentColor" stroke-width="2" opacity=".75"/>
+      <path d="M24 4 l3 -3 l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-text">
+      <span class="kicker">RENDER STUDY 02</span>
+      <h1>STILL <i>/</i> FLUX</h1>
+    </div>
+  </div>
+  <div class="live"><span class="dot"></span> LIVE MIRROR PASS <em>|</em> <b id="gpu-label">SWIFTSHADER · WEBGL 2</b></div>
+  <div class="top-actions">
+    <button id="btn-pause" class="hud-btn"><span class="ic">❚❚</span> PAUSE</button>
+    <button id="btn-inspect" class="hud-btn"><span class="ic">▦</span> INSPECT</button>
+  </div>
+</header>
+
+<!-- left study block -->
+<section class="study">
+  <div class="study-head"><span class="idx">01</span> PLANAR REFLECTION <span class="rule"></span> OBLIQUE FRUSTUM</div>
+  <h2 class="cn-title">水知道</h2>
+  <div class="pick-panel" id="pick-panel">
+    <div class="pick-head"><span>01 · MIRROR CAMERA PICK</span><b id="pick-state-tag">SAMPLING</b></div>
+    <dl>
+      <dt>REFLECTION UV</dt><dd id="pick-uv">0.500 / 0.350</dd>
+      <dt>WORLD POSITION</dt><dd id="pick-world">1.6 / 0.0 / -4.6</dd>
+    </dl>
+    <div class="pick-foot"><span id="pick-state">SURFACE HIT · MIRROR SAMPLE</span><span class="ring"></span></div>
+  </div>
+  <p class="study-note">镜面相机从水下反向观测，斜裁剪平面只保留水线以上的世界。<br/>波纹法线扰动反射 UV，并在采样边缘收敛。</p>
+  <div class="waterline"><span>WATER PLANE / Y = 0.00</span><i></i><em>CLIP PLANE / ACTIVE</em></div>
+</section>
+
+<!-- hydrodynamics panel -->
+<aside class="hydro" id="hydro">
+  <div class="hydro-head"><span>HYDRODYNAMICS</span><b>02</b></div>
+  <div class="hydro-sub">水面动力学</div>
+  <div class="regime-cards">
+    <button class="regime" data-regime="current">
+      <svg viewBox="0 0 90 34"><path d="M4 22 q8 -12 16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span class="cn">强流</span><span class="en">FAST CURRENT</span><i class="card-dot"></i>
+    </button>
+    <button class="regime" data-regime="calm">
+      <svg viewBox="0 0 90 34"><path d="M6 17 q10 -7 20 0 t20 0 t20 0 t18 0" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span class="cn">静水</span><span class="en">STILL WATER</span><i class="card-dot"></i>
+    </button>
+  </div>
+  <div class="params">
+    <div class="param"><dt>波速</dt><dd><b id="p-speed">2.20</b><em>m/s</em></dd></div>
+    <div class="param"><dt>法线扰动</dt><dd><b id="p-distortion">0.055</b><em>uv</em></dd></div>
+    <div class="param"><dt>波峰间距</dt><dd><b id="p-wavelength">0.62</b><em>m</em></dd></div>
+    <div class="param"><dt>反射混合</dt><dd><b id="p-mix">0.82</b><em></em></dd></div>
+  </div>
+  <div class="hydro-foot"><span class="info-i">i</span><p>岸边反射采用低频扰动，<br/>UV 越界则收敛，避免拖出水面。</p></div>
+</aside>
+
+<!-- reflection rt preview -->
+<div class="rt-preview" id="rt-preview">
+  <div class="rt-head"><span>REFLECTION RT</span><b id="rt-size">1038×648</b></div>
+  <canvas id="rt-canvas" width="168" height="104"></canvas>
+  <div class="rt-foot"><span>MIRROR VIEW</span><em>Y-FLIP</em></div>
+  <span class="rt-corner"></span>
+</div>
+
+<!-- crosshair -->
+<div class="crosshair" id="crosshair"><i></i><i></i></div>
+
+<!-- bottom metric bar -->
+<footer class="metrics">
+  <div class="cell">
+    <span class="lbl">PASS COST</span>
+    <span class="big">MIRROR<br/>BUDGET</span>
+  </div>
+  <div class="cell">
+    <span class="lbl">反射渲染分辨率</span>
+    <span class="big" id="m-resolution">1038 × 648</span>
+    <span class="sub" id="m-scale">0.72 · 0.72 · 1.60:1</span>
+  </div>
+  <div class="cell">
+    <span class="lbl">额外绘制耗时</span>
+    <span class="big"><b id="m-drawtime">0.65</b><em>ms</em></span>
+    <span class="sub">CPU TIMER · ROLLING</span>
+  </div>
+  <div class="cell">
+    <span class="lbl">反射绘制负载</span>
+    <span class="big"><b id="m-tris">23.0</b><em>k tris</em></span>
+    <span class="sub" id="m-draws">66 DRAWS · SCENE+</span>
+  </div>
+  <div class="cell">
+    <span class="lbl">斜裁剪状态</span>
+    <span class="big ok" id="m-clip">CLEAN</span>
+    <span class="sub" id="m-clip-sub">● NO UNDERWATER LEAK</span>
+  </div>
+</footer>
+<div class="foot-meta">
+  <span>ALPINE BASIN / 46° 12' N</span>
+  <span class="trace"><i class="bars"></i> TRACE <b id="m-frame">0001</b> <b id="m-fps">46</b> FPS</span>
+  <span>CLIP BIAS / 0.002</span>
+</div>
+
+<script src="src/mat4.js"></script>
+<script src="src/glutil.js"></script>
+<script src="src/mirror.js"></script>
+<script src="src/scene.js"></script>
+<script src="src/water.js"></script>
+<script src="src/renderer.js"></script>
+<script src="src/hud.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>

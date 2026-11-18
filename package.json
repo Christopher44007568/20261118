@@ -1,0 +1,27 @@
+{
+  "name": "uid5-0025",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "serve": "python3 -m http.server 8765",
+    "capture": "node tools/capture.js",
+    "capture:mobile": "node tools/capture.js --mobile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "dependencies": {
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^23.11.1"
+  }
+}
