@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Progressive Path Tracer · WebGPU Compute</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="layout">
+    <section class="viewer card">
+      <canvas id="canvas" width="480" height="270"></canvas>
+      <div id="gpu-badge" class="gpu-badge">初始化 WebGPU…</div>
+      <div id="hud" class="hud">
+        <span id="hud-spp">0 SPP</span>
+        <span id="hud-fps">– fps</span>
+        <span id="hud-state">运行中</span>
+      </div>
+    </section>
+
+    <aside class="panel card">
+      <h1>Progressive Path Tracer</h1>
+      <p class="subtitle">WebGPU Compute · 渐进式累积 · 可复现随机流</p>
+
+      <div class="group">
+        <div class="row"><label>状态</label><span id="status-text">运行中</span></div>
+        <div class="row">
+          <label>当前帧 SPP</label>
+          <strong id="cur-spp">0 SPP</strong>
+        </div>
+        <div class="row"><label>帧计数</label><span id="frame-count">0</span></div>
+        <div class="row"><label>GPU 像素样本</label><span id="gpu-spp">0</span></div>
+        <div class="row">
+          <label>目标 SPP</label>
+          <input id="target-spp" type="number" min="1" max="100000" value="1000" />
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="btn-row">
+          <button id="btn-reset" class="btn">重置</button>
+          <button id="btn-pause" class="btn">暂停</button>
+          <button id="btn-snapshot" class="btn">截图</button>
+          <button id="btn-selftest" class="btn">自检</button>
+        </div>
+        <label class="check">
+          <input id="auto-snap" type="checkbox" checked />
+          在 10 / 100 / 1000 SPP 自动截图
+        </label>
+      </div>
+
+      <div class="group">
+        <p class="group-title">相机（拖动视角 / 滚轮缩放，移动即清空历史）</p>
+        <div class="btn-row">
+          <button id="btn-cam-reset" class="btn btn-alt">复位视角</button>
+          <button id="btn-bounce-test" class="btn btn-alt">暂停/继续样本测试</button>
+        </div>
+        <div class="row">
+          <label>渲染分辨率</label>
+          <select id="res-select">
+            <option value="320x180">320 × 180（快速）</option>
+            <option value="480x270" selected>480 × 270（默认）</option>
+            <option value="640x360">640 × 360（精细）</option>
+            <option value="960x540">960 × 540（较慢）</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="group">
+        <p class="group-title">收敛对比 · 10 / 100 / 1000 SPP</p>
+        <div id="snapshots" class="snapshots">
+          <figure class="snap" data-spp="10">
+            <figcaption>等待采样… @ 10 SPP</figcaption>
+            <div class="snap-empty">10 SPP</div>
+          </figure>
+          <figure class="snap" data-spp="100">
+            <figcaption>等待采样… @ 100 SPP</figcaption>
+            <div class="snap-empty">100 SPP</div>
+          </figure>
+          <figure class="snap" data-spp="1000">
+            <figcaption>等待采样… @ 1000 SPP</figcaption>
+            <div class="snap-empty">1000 SPP</div>
+          </figure>
+        </div>
+      </div>
+
+      <div class="group">
+        <p class="group-title">自检日志</p>
+        <pre id="selftest-log" class="log">尚未运行自检。</pre>
+      </div>
+    </aside>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>

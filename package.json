@@ -1,0 +1,21 @@
+{
+  "name": "uid5-0008",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme"
+}
