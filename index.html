@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>WebGL2 SSAO 后处理管线</title>
+<style>
+  body { margin: 0; background: #111; color: #ddd; font: 13px/1.5 system-ui, sans-serif; }
+  .wrap { display: flex; gap: 16px; padding: 12px; }
+  canvas { background: #000; border: 1px solid #333; }
+  .panel { min-width: 240px; }
+  label { display: block; margin: 10px 0 2px; }
+  input[type=range] { width: 100%; }
+  select, input[type=checkbox] { margin-top: 6px; }
+  .hint { color: #888; font-size: 12px; margin-top: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <canvas id="gl" width="960" height="720"></canvas>
+  <div class="panel">
+    <h3>SSAO 参数</h3>
+    <label>核半径 radius <span id="radiusValue">0.85</span></label>
+    <input id="radius" type="range" min="0.1" max="2.5" step="0.01" value="0.85" />
+    <label>深度偏差 depth bias <span id="biasValue">0.025</span></label>
+    <input id="bias" type="range" min="0" max="0.2" step="0.001" value="0.025" />
+    <label>强度 intensity <span id="intensityValue">1.6</span></label>
+    <input id="intensity" type="range" min="0" max="4" step="0.05" value="1.6" />
+    <label>采样数 kernel samples <span id="samplesValue">32</span></label>
+    <input id="samples" type="range" min="4" max="64" step="4" value="32" />
+    <label>视图模式</label>
+    <select id="viewMode">
+      <option value="0" selected>最终光照合成</option>
+      <option value="1">仅 AO 遮蔽项（灰度）</option>
+      <option value="2">边界跳过调试</option>
+      <option value="3">深度重建法线</option>
+    </select>
+    <label><input id="blur" type="checkbox" checked /> 边缘感知模糊（双边）</label>
+    <p class="hint">
+      法线完全由线性深度在视图空间重建，参与半球采样；<br/>
+      屏幕外采样直接跳过，不使用钳制/重复纹理数据。
+    </p>
+  </div>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

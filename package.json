@@ -1,0 +1,15 @@
+{
+  "name": "ssao-webgl2-pipeline",
+  "version": "1.0.0",
+  "description": "WebGL2 screen-space ambient occlusion post-processing pipeline",
+  "type": "module",
+  "scripts": {
+    "serve": "node tests/serve.mjs",
+    "test": "node tests/run-tests.mjs"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
