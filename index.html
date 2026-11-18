@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="可交互的角色面部形变目标实验台，包含位置与法线混合、权重钳制及稳定性验证。"
+    />
+    <title>Morph Lab · 角色形变实验台</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div>
+            <p class="eyebrow">CHARACTER DEFORMATION / 0056</p>
+            <h1>Morph Lab <span>角色形变实验台</span></h1>
+          </div>
+        </div>
+        <div class="base-lock" id="stability-pill">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          <span>基准网格已锁定</span>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="control-panel">
+          <section class="panel-section intro">
+            <p class="section-index">01 / MORPH TARGETS</p>
+            <h2>面部权重</h2>
+            <p>
+              每个目标同时携带位置与法线偏移。安全区间为
+              <strong>0.00 — 1.00</strong>，越界输入会被自动钳制。
+            </p>
+          </section>
+
+          <section class="weights" aria-label="形变权重">
+            <article class="weight-card" data-target="smile">
+              <div class="weight-heading">
+                <div class="target-name">
+                  <span class="target-swatch smile"></span>
+                  <div>
+                    <h3>微笑 <small>SMILE</small></h3>
+                    <p>嘴角上扬 · 苹果肌隆起</p>
+                  </div>
+                </div>
+                <output class="weight-value" id="smile-output">0.55</output>
+              </div>
+              <input
+                id="smile-range"
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value="0.55"
+                aria-label="微笑权重"
+              />
+              <div class="range-meta">
+                <span>0</span>
+                <span class="safe-zone">SAFE 0 — 1</span>
+                <span>2</span>
+              </div>
+            </article>
+
+            <article class="weight-card" data-target="blink">
+              <div class="weight-heading">
+                <div class="target-name">
+                  <span class="target-swatch blink"></span>
+                  <div>
+                    <h3>眨眼 <small>BLINK</small></h3>
+                    <p>上下眼睑向眼裂收拢</p>
+                  </div>
+                </div>
+                <output class="weight-value" id="blink-output">0.15</output>
+              </div>
+              <input
+                id="blink-range"
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value="0.15"
+                aria-label="眨眼权重"
+              />
+              <div class="range-meta">
+                <span>0</span>
+                <span class="safe-zone">SAFE 0 — 1</span>
+                <span>2</span>
+              </div>
+            </article>
+
+            <article class="weight-card" data-target="brow">
+              <div class="weight-heading">
+                <div class="target-name">
+                  <span class="target-swatch brow"></span>
+                  <div>
+                    <h3>眉部 <small>BROW</small></h3>
+                    <p>眉弓抬高并向前隆起</p>
+                  </div>
+                </div>
+                <output class="weight-value" id="brow-output">0.35</output>
+              </div>
+              <input
+                id="brow-range"
+                type="range"
+                min="0"
+                max="2"
+                step="0.01"
+                value="0.35"
+                aria-label="眉部权重"
+              />
+              <div class="range-meta">
+                <span>0</span>
+                <span class="safe-zone">SAFE 0 — 1</span>
+                <span>2</span>
+              </div>
+            </article>
+          </section>
+
+          <div class="clamp-notice" id="clamp-notice" aria-live="polite">
+            <span class="notice-icon">!</span>
+            <span>所有输入均在安全范围内</span>
+          </div>
+
+          <div class="action-row">
+            <button class="button button-primary" id="extreme-button" type="button">
+              <span>触发极端组合</span>
+              <kbd>2.0 × 3</kbd>
+            </button>
+            <button class="button button-ghost" id="reset-button" type="button">
+              复位
+            </button>
+          </div>
+
+          <section class="single-picker">
+            <div class="section-label">
+              <span>单体对照</span>
+              <span class="micro">COMPARE</span>
+            </div>
+            <div class="segmented" role="group" aria-label="选择单个形变目标">
+              <button class="segment active" data-single="smile" type="button">微笑</button>
+              <button class="segment" data-single="blink" type="button">眨眼</button>
+              <button class="segment" data-single="brow" type="button">眉部</button>
+            </div>
+          </section>
+
+          <section class="stability-card">
+            <div class="stability-title">
+              <div>
+                <p class="section-index">02 / STABILITY</p>
+                <h3>往返切换验证</h3>
+              </div>
+              <span class="test-badge" id="test-badge">RUNNING</span>
+            </div>
+            <p class="stability-copy">
+              随机切换形变后归零，检查网格是否回到不可变的基准态。
+            </p>
+            <dl class="stability-results">
+              <div><dt>循环次数</dt><dd id="cycle-count">—</dd></div>
+              <div><dt>位置残差</dt><dd id="position-residual">—</dd></div>
+              <div><dt>法线残差</dt><dd id="normal-residual">—</dd></div>
+            </dl>
+            <button class="text-button" id="rerun-test" type="button">
+              <span>重新运行压力测试</span><span aria-hidden="true">↗</span>
+            </button>
+          </section>
+        </aside>
+
+        <section class="stage">
+          <div class="stage-heading">
+            <div>
+              <p class="section-index">03 / VIEWPORT</p>
+              <h2>单体形变 vs. 组合结果</h2>
+            </div>
+            <div class="stage-hint">
+              <span class="diff-swatch"></span>
+              青色点标记组合与单体的顶点差异
+            </div>
+          </div>
+
+          <div class="viewport-grid">
+            <figure class="viewport">
+              <figcaption class="viewport-head">
+                <div>
+                  <span class="viewport-kicker">A / ISOLATED</span>
+                  <h3>单体 · <span id="single-name">微笑</span></h3>
+                </div>
+                <div class="peak-readout">
+                  <span>MAX Δ</span>
+                  <strong id="single-peak">0.000</strong>
+                </div>
+              </figcaption>
+              <div class="canvas-wrap">
+                <canvas id="single-canvas" aria-label="单个形变目标预览"></canvas>
+                <span class="corner-label">POSITION + NORMAL</span>
+                <span class="axis-mark">Y</span>
+              </div>
+            </figure>
+
+            <figure class="viewport viewport-combined">
+              <figcaption class="viewport-head">
+                <div>
+                  <span class="viewport-kicker">B / COMBINED</span>
+                  <h3>组合 · 全权重叠加</h3>
+                </div>
+                <div class="peak-readout accent">
+                  <span>MAX Δ</span>
+                  <strong id="combined-peak">0.000</strong>
+                </div>
+              </figcaption>
+              <div class="canvas-wrap">
+                <canvas id="combined-canvas" aria-label="全部形变组合预览"></canvas>
+                <span class="corner-label">DIFF OVERLAY ON</span>
+                <span class="axis-mark">Y</span>
+              </div>
+            </figure>
+          </div>
+
+          <div class="metrics-strip">
+            <article class="metric">
+              <span class="metric-label">组合峰值位移</span>
+              <strong id="metric-combined">0.0000</strong>
+              <small>世界单位</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">组合 − 单体</span>
+              <strong id="metric-delta">0.0000</strong>
+              <small>最大顶点差</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">轮廓完整性</span>
+              <strong class="status-good" id="metric-silhouette">PASS</strong>
+              <small id="metric-flips">0 个翻转三角形</small>
+            </article>
+            <article class="metric">
+              <span class="metric-label">安全修正</span>
+              <strong id="metric-safety">×1.00</strong>
+              <small id="metric-weights">有效权重 1.05</small>
+            </article>
+          </div>
+
+          <div class="legend-row">
+            <span><i class="legend-dot smile"></i>微笑</span>
+            <span><i class="legend-dot blink"></i>眨眼</span>
+            <span><i class="legend-dot brow"></i>眉部</span>
+            <span class="legend-separator"></span>
+            <span><i class="legend-line"></i>三角形网格</span>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>BASE MESH IMMUTABLE · POSITION + NORMAL BLEND</span>
+        <span>72 × 30 MESH · 2,161 VERTICES · 4,248 TRIANGLES</span>
+      </footer>
+    </div>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
