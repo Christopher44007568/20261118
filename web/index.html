@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>近似次表面散射材质 · Approximate SSS (Jade / Skin)</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; font: 13px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0d0f14; color: #d7dde8; display: flex; min-height: 100vh;
+  }
+  #panel {
+    width: 280px; padding: 18px; box-sizing: border-box;
+    background: #141821; border-right: 1px solid #232a38; overflow-y: auto;
+  }
+  #panel h1 { font-size: 15px; margin: 0 0 4px; }
+  #panel p.sub { color: #8a93a6; margin: 0 0 16px; font-size: 12px; }
+  .group { margin-bottom: 16px; border-top: 1px solid #232a38; padding-top: 12px; }
+  .group label.title { display: block; font-weight: 600; margin-bottom: 8px; color: #b9c2d4; }
+  .row { display: flex; gap: 6px; margin-bottom: 6px; }
+  button {
+    flex: 1; padding: 7px 6px; border: 1px solid #2c3547; background: #1c2330;
+    color: #cdd5e4; border-radius: 6px; cursor: pointer; font-size: 12px;
+  }
+  button:hover { background: #242d3d; }
+  button.active { background: #3d6cff; border-color: #5a82ff; color: #fff; }
+  .slider { margin-bottom: 10px; }
+  .slider label { display: flex; justify-content: space-between; color: #aeb8ca; }
+  .slider input { width: 100%; }
+  canvas { flex: 1; display: block; }
+  .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .hint { color: #6f7a90; font-size: 11px; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div id="panel">
+    <h1>近似次表面散射 (SSS)</h1>
+    <p class="sub">法线 · 曲率 · 厚度 · 光方向共同决定透光强度</p>
+
+    <div class="group">
+      <label class="title">材质 Material</label>
+      <div class="row">
+        <button id="mat-jade" class="active">玉石 Jade</button>
+        <button id="mat-skin">皮肤 Skin</button>
+      </div>
+      <div class="hint">
+        <span class="swatch" id="sw-surface"></span>表面色 surface
+        <span class="swatch" id="sw-scatter" style="margin-left:8px"></span>散射色 scatter
+      </div>
+    </div>
+
+    <div class="group">
+      <label class="title">光照 Light</label>
+      <div class="row">
+        <button id="light-front">正光 Front</button>
+        <button id="light-back" class="active">逆光 Back</button>
+        <button id="light-side">侧光 Side</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label class="title">调试模式 Debug</label>
+      <div class="row">
+        <button id="dbg-0" class="active">最终 Final</button>
+        <button id="dbg-1">厚度 Thickness</button>
+      </div>
+      <div class="row">
+        <button id="dbg-2">散射 Scatter</button>
+        <button id="dbg-3">法线 Normal</button>
+      </div>
+      <div class="row">
+        <button id="dbg-4">曲率 Curvature</button>
+        <button id="dbg-5">纯漫反射 Diffuse</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label class="title">参数 Parameters</label>
+      <div class="slider">
+        <label>散射强度 <span id="v-strength"></span></label>
+        <input id="p-strength" type="range" min="0" max="2" step="0.01" />
+      </div>
+      <div class="slider">
+        <label>密度 (消光) <span id="v-density"></span></label>
+        <input id="p-density" type="range" min="0.1" max="4" step="0.01" />
+      </div>
+      <div class="slider">
+        <label>包裹 Wrap <span id="v-wrap"></span></label>
+        <input id="p-wrap" type="range" min="0" max="0.95" step="0.01" />
+      </div>
+      <div class="slider">
+        <label>薄边锐度 <span id="v-power"></span></label>
+        <input id="p-power" type="range" min="0.25" max="6" step="0.05" />
+      </div>
+    </div>
+    <p class="hint">鼠标拖动可旋转视角。SSS 仅在光线到达背面时出现，
+      不会变成无光照的加色发光。</p>
+  </div>
+  <canvas id="gl"></canvas>
+  <script src="viewer.js"></script>
+</body>
+</html>
