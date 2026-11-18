@@ -1,0 +1,32 @@
+{
+  "name": "uid5-0064",
+  "version": "1.0.0",
+  "description": "HDR Framebuffer Lab: RGBA16F float scene buffer with ACES/PQ tonemapping into an RGBA8 display texture.",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "dependencies": {
+    "playwright": "^1.65.1",
+    "playwright-core": "^1.65.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.65.1"
+  }
+}
