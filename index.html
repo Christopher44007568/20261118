@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#060a11">
+    <title>MIPSTREAM — Distance Texture Pipeline</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="ambient ambient-a"></div>
+    <div class="ambient ambient-b"></div>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="MIPSTREAM home">
+          <span class="brand-mark" aria-hidden="true">
+            <i></i><i></i><i></i>
+          </span>
+          <span class="brand-copy">
+            <strong>MIPSTREAM</strong>
+            <small>DISTANCE TEXTURE PIPELINE / 0.9.4</small>
+          </span>
+        </a>
+        <div class="topbar-center" aria-hidden="true">
+          <span>CAM 07</span>
+          <b></b>
+          <span>ORBITAL ARCHIVE</span>
+          <b></b>
+          <span>14.2 GB/S</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="network-pill is-online" id="network-toggle" type="button" aria-pressed="true">
+            <span class="network-dot"></span>
+            <span id="network-label">NETWORK ONLINE</span>
+          </button>
+          <button class="icon-button" id="reset-view" type="button" title="Reset camera" aria-label="Reset camera">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4.7 9A8 8 0 1 1 4 12M4 4v5h5"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="viewport-panel" aria-label="3D texture streaming view">
+          <div class="viewport-head">
+            <div class="live-label"><span></span> LIVE FEED</div>
+            <div class="camera-readout">
+              <span>YAW <b id="camera-yaw">024°</b></span>
+              <span>ORBIT <b id="camera-orbit">8.2m</b></span>
+              <span>NEAREST <b id="camera-nearest">4.1m</b></span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <canvas id="scene" aria-label="Orbitable archive of textures"></canvas>
+            <div class="viewport-corner top-left">
+              <span>SECTOR 07</span>
+              <strong>ARCHIVE RING</strong>
+            </div>
+            <div class="viewport-corner top-right">
+              <span>FRAME</span>
+              <strong id="frame-counter">000000</strong>
+            </div>
+            <div class="lod-key">
+              <span><i class="lod-dot l0"></i>FAR / L0</span>
+              <span><i class="lod-dot l1"></i>L1</span>
+              <span><i class="lod-dot l2"></i>L2</span>
+              <span><i class="lod-dot l3"></i>NEAR / L3</span>
+            </div>
+            <div class="orbit-hint">
+              <span class="mouse-icon" aria-hidden="true"></span>
+              DRAG TO ORBIT · SCROLL TO DOLLY
+            </div>
+            <div class="focus-label" id="focus-label">
+              <span>ACQUIRING</span>
+              <strong>RESIDENT MIP</strong>
+            </div>
+          </div>
+
+          <div class="viewport-foot">
+            <div>
+              <span class="eyebrow">PIPELINE</span>
+              <strong>BASE-FIRST / DISTANCE PRIORITY</strong>
+            </div>
+            <div class="signal-track" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <div class="stream-state" id="stream-state">
+              <span class="pulse"></span>
+              <span id="stream-state-label">STREAMING</span>
+            </div>
+          </div>
+        </section>
+
+        <aside class="telemetry" aria-label="Texture streaming telemetry">
+          <div class="telemetry-head">
+            <div>
+              <span class="eyebrow">REAL-TIME / 60 HZ</span>
+              <h2>STREAM TELEMETRY</h2>
+            </div>
+            <span class="telemetry-id">TS-07A</span>
+          </div>
+
+          <section class="metric-grid" aria-label="Primary metrics">
+            <article class="metric-card">
+              <span class="metric-label">RESIDENT MIPS</span>
+              <strong id="resident-count">00</strong>
+              <small>OF 32 SLOTS</small>
+            </article>
+            <article class="metric-card is-accent">
+              <span class="metric-label">QUEUED TASKS</span>
+              <strong id="queue-count">0</strong>
+              <small><span id="active-count">0</span> IN FLIGHT</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">REPLACEMENTS</span>
+              <strong id="replacement-count">0</strong>
+              <small>VISIBLE SWAPS</small>
+            </article>
+            <article class="metric-card">
+              <span class="metric-label">CACHE HITS</span>
+              <strong id="cache-hit-count">0</strong>
+              <small>ZERO REFETCH</small>
+            </article>
+          </section>
+
+          <section class="panel-section occupancy-section">
+            <div class="section-title">
+              <span>MIP OCCUPANCY</span>
+              <b id="memory-total">0.00 MB</b>
+            </div>
+            <div class="level-head">
+              <span>LEVEL</span><span>RESIDENT</span><span>QUEUE</span><span>MEMORY</span>
+            </div>
+            <div class="level-list" id="level-list">
+              <div class="level-row" data-level="0">
+                <div class="level-name"><i class="level-swatch l0"></i><b>L0</b><small>64²</small></div>
+                <div class="level-bar"><span id="level-l0-bar"></span></div>
+                <div class="level-count" id="level-l0-count">0/8</div>
+                <div class="level-queue" id="level-l0-queue">0</div>
+                <div class="level-bytes" id="level-l0-bytes">0 KB</div>
+              </div>
+              <div class="level-row" data-level="1">
+                <div class="level-name"><i class="level-swatch l1"></i><b>L1</b><small>128²</small></div>
+                <div class="level-bar"><span id="level-l1-bar"></span></div>
+                <div class="level-count" id="level-l1-count">0/8</div>
+                <div class="level-queue" id="level-l1-queue">0</div>
+                <div class="level-bytes" id="level-l1-bytes">0 KB</div>
+              </div>
+              <div class="level-row" data-level="2">
+                <div class="level-name"><i class="level-swatch l2"></i><b>L2</b><small>256²</small></div>
+                <div class="level-bar"><span id="level-l2-bar"></span></div>
+                <div class="level-count" id="level-l2-count">0/8</div>
+                <div class="level-queue" id="level-l2-queue">0</div>
+                <div class="level-bytes" id="level-l2-bytes">0 KB</div>
+              </div>
+              <div class="level-row" data-level="3">
+                <div class="level-name"><i class="level-swatch l3"></i><b>L3</b><small>512²</small></div>
+                <div class="level-bar"><span id="level-l3-bar"></span></div>
+                <div class="level-count" id="level-l3-count">0/8</div>
+                <div class="level-queue" id="level-l3-queue">0</div>
+                <div class="level-bytes" id="level-l3-bytes">0 KB</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel-section queue-section">
+            <div class="section-title">
+              <span>QUEUE / PRIORITY</span>
+              <b id="queue-detail">IDLE</b>
+            </div>
+            <div class="task-list" id="task-list">
+              <div class="task-empty">NO PENDING REQUESTS</div>
+            </div>
+          </section>
+
+          <section class="panel-section color-section">
+            <div class="section-title">
+              <span>COLOR CONTINUITY</span>
+              <b>MEAN ΔRGB</b>
+            </div>
+            <div class="color-readout">
+              <strong id="color-drift">0.00</strong>
+              <div>
+                <span class="stability-meter"><i id="stability-meter-fill"></i></span>
+                <small id="color-status">NORMALIZED / STABLE</small>
+              </div>
+            </div>
+          </section>
+
+          <section class="cache-test">
+            <div class="cache-test-copy">
+              <span class="eyebrow">VALIDATION</span>
+              <h3>180° SNAP-BACK TEST</h3>
+              <p>Fast turn, cancel in-flight detail, return to the original view and verify cache reuse.</p>
+            </div>
+            <button id="run-cache-test" type="button">
+              <span>RUN CACHE TEST</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+            </button>
+            <div class="cache-result" id="cache-result" data-status="idle">
+              <span class="result-dot"></span>
+              <div>
+                <strong id="cache-result-title">READY TO VALIDATE</strong>
+                <small id="cache-result-detail">Warm the scene, then run the round-trip.</small>
+              </div>
+            </div>
+          </section>
+
+          <section class="event-section">
+            <div class="section-title">
+              <span>EVENT TRACE</span>
+              <b>LIVE</b>
+            </div>
+            <div class="event-log" id="event-log" aria-live="polite"></div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="statusbar">
+        <div><span>ENGINE</span> MIP/SCHED 2.1</div>
+        <div><span>PIPELINE</span> BASE-FIRST</div>
+        <div><span>EVICTION</span> PINNED</div>
+        <div class="statusbar-right" id="footer-status">ALL SYSTEMS NOMINAL</div>
+      </footer>
+    </div>
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
