@@ -1,0 +1,29 @@
+{
+  "name": "uid5-0020",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000#\u0000 \u00002\u00000\u00002\u00006\u00001\u00001\u00001\u00008\u0000\r\u0000 \u0000",
+  "main": "index.js",
+  "scripts": {
+    "build": "asc assembly/rockgen.ts --target release -O3 --noAssert -o dist/rockgen.wasm && cp dist/rockgen.wasm web/rockgen.wasm",
+    "validate": "node tools/validate.mjs",
+    "compare": "node tools/compare.mjs",
+    "preview": "node tools/preview_test.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Christopher44007568/20261118.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Christopher44007568/20261118/issues"
+  },
+  "homepage": "https://github.com/Christopher44007568/20261118#readme",
+  "devDependencies": {
+    "assemblyscript": "^0.28.20",
+    "playwright": "^1.65.1"
+  }
+}

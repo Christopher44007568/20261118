@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Rock Strata Material Lab — WASM + WebGL2</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #101216; color: #cfd3da;
+    font: 13px/1.4 system-ui, sans-serif; overflow: hidden; }
+  #gl { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #panel { position: absolute; top: 10px; left: 10px; width: 250px; padding: 12px;
+    background: rgba(18, 20, 26, .88); border: 1px solid #2c313c; border-radius: 8px;
+    max-height: calc(100% - 40px); overflow-y: auto; }
+  #panel h1 { font-size: 14px; margin: 0 0 8px; color: #e8b64c; }
+  .row { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+  .row label { flex: 0 0 78px; color: #9aa0ac; }
+  .row select, .row input[type=number] { flex: 1; background: #1c1f26; color: #cfd3da;
+    border: 1px solid #333947; border-radius: 4px; padding: 3px 4px; }
+  .row input[type=range] { flex: 1; }
+  .row output { width: 30px; text-align: right; color: #e8b64c; }
+  button { background: #2a4d7a; color: #fff; border: 0; border-radius: 4px;
+    padding: 6px 8px; cursor: pointer; margin: 2px 4px 2px 0; }
+  button:hover { background: #35608f; }
+  #status { margin-top: 8px; color: #8a917f; font-size: 12px; min-height: 16px; }
+  .hint { color: #6b7280; font-size: 11px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="panel">
+  <h1>岩层材质实验室</h1>
+  <div class="row"><label>Seed</label>
+    <select id="seedPreset">
+      <option value="1234">A (1234)</option>
+      <option value="9876">B (9876)</option>
+      <option value="custom">自定义…</option>
+    </select>
+    <input id="seedNum" type="number" value="1234" step="1" style="max-width:76px">
+  </div>
+  <div class="row"><label>铺瓦次数</label><input id="tiles" type="range" min="1" max="8" step="1" value="3"><output id="tilesOut">3</output></div>
+  <div class="row"><label>通道</label>
+    <select id="channel">
+      <option value="0">着色 (PBR)</option>
+      <option value="1">反照率</option>
+      <option value="2">粗糙度</option>
+      <option value="3">法线</option>
+      <option value="4">高度</option>
+      <option value="5">孔隙遮罩</option>
+      <option value="6">Mip 层级调试</option>
+    </select>
+  </div>
+  <div class="row"><label>几何</label>
+    <select id="geom">
+      <option value="split">球体 | 平面</option>
+      <option value="sphere">球体</option>
+      <option value="plane">平面</option>
+    </select>
+  </div>
+  <div class="row"><label>光方位角</label><input id="lightAz" type="range" min="-180" max="180" step="1" value="35"><output id="lightAzOut">35°</output></div>
+  <div class="row"><label>光高度角</label><input id="lightEl" type="range" min="5" max="85" step="1" value="25"><output id="lightElOut">25°</output></div>
+  <div class="row"><label>法线强度</label><input id="nstr" type="range" min="0" max="3" step="0.05" value="1"><output id="nstrOut">1.0</output></div>
+  <div class="row">
+    <button id="regen">重新生成</button>
+    <button id="exportSeed">导出当前 seed</button>
+    <button id="exportBoth">导出两套 seed</button>
+  </div>
+  <div id="status">加载 WASM…</div>
+  <div class="hint">拖动旋转 · 滚轮缩放。拉远相机或提高铺瓦次数时，mip 链自动切换低细节层（通道选 “Mip 层级调试” 可见）。</div>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>
