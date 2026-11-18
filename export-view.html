@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <title>Adaptive Bezier Export</title>
+  <style>
+    html, body { margin: 0; padding: 0; background: #0d1622; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <canvas id="view" width="1400" height="900"></canvas>
+  <script type="module">
+    import { createScene, refreshScene } from "./src/scene.js";
+    import { drawShaded, drawWireframe } from "./src/render.js";
+
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode") || "shaded";
+    const moved = params.get("moved") === "1";
+    const canvas = document.getElementById("view");
+    const ctx = canvas.getContext("2d");
+
+    const scene = createScene();
+    if (moved) {
+      const indices = scene.surface.moveNode(2, 4, scene.surface.nodes[4][2][2] + 0.9);
+      refreshScene(scene, new Set(indices));
+    }
+    if (mode === "wireframe") {
+      drawWireframe(ctx, scene.meshes, scene.camera, canvas.width, canvas.height,
+        moved ? scene.surface : null);
+    } else {
+      drawShaded(ctx, scene.meshes, scene.camera, canvas.width, canvas.height);
+    }
+    document.title = `ready:${mode}`;
+  </script>
+</body>
+</html>

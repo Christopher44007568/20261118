@@ -1,0 +1,13 @@
+{
+  "name": "bezier-adaptive-subdivision",
+  "version": "1.0.0",
+  "description": "Screen-space adaptive subdivision of bicubic Bezier patches with local updates",
+  "type": "module",
+  "scripts": {
+    "test": "node test/math.test.js && node test/bspline.test.js && node test/surface.test.js && node test/mesh.test.js && node test/raster.test.js",
+    "diagnose": "node tools/diagnose.js",
+    "export": "node tools/export-views.js",
+    "screenshot": "node tools/screenshot.js",
+    "screenshot:ui": "node tools/screenshot-ui.js"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "resolution": {
+    "width": 1400,
+    "height": 900
+  },
+  "patchCount": 16,
+  "vertices": 8976,
+  "triangles": 16464,
+  "columnSegments": [
+    19,
+    19,
+    28,
+    32
+  ],
+  "rowSegments": [
+    22,
+    20,
+    21,
+    21
+  ],
+  "initialGeometry": {
+    "vertices": 8514,
+    "triangles": 15580
+  },
+  "targets": [
+    {
+      "u": 0,
+      "v": 0,
+      "curvatureU": 0.008695832689238164,
+      "curvatureV": 0.0030294990655250877
+    },
+    {
+      "u": 1,
+      "v": 0,
+      "curvatureU": 0.009150440753859542,
+      "curvatureV": 0.005625261307126465
+    },
+    {
+      "u": 2,
+      "v": 0,
+      "curvatureU": 0.0425601936450522,
+      "curvatureV": 0.015527321525414329
+    },
+    {
+      "u": 3,
+      "v": 0,
+      "curvatureU": 0.0006316675261338548,
+      "curvatureV": 0.01730965845536396
+    },
+    {
+      "u": 0,
+      "v": 1,
+      "curvatureU": 0.002064830634134097,
+      "curvatureV": 0.0004950370503252264
+    },
+    {
+      "u": 1,
+      "v": 1,
+      "curvatureU": 0.0011137417003207702,
+      "curvatureV": 0.01907326183983959
+    },
+    {
+      "u": 2,
+      "v": 1,
+      "curvatureU": 0.012269258436504256,
+      "curvatureV": 0.04856046874826929
+    },
+    {
+      "u": 3,
+      "v": 1,
+      "curvatureU": 0.002340702667079135,
+      "curvatureV": 0.05534449648910215
+    },
+    {
+      "u": 0,
+      "v": 2,
+      "curvatureU": 0.015274049468982148,
+      "curvatureV": 0.007871828915852733
+    },
+    {
+      "u": 1,
+      "v": 2,
+      "curvatureU": 0.018305822343943165,
+      "curvatureV": 0.011401782307105122
+    },
+    {
+      "u": 2,
+      "v": 2,
+      "curvatureU": 0.0359133122347857,
+      "curvatureV": 0.03790841589294176
+    },
+    {
+      "u": 3,
+      "v": 2,
+      "curvatureU": 0.011364690514032742,
+      "curvatureV": 0.04453370952030002
+    },
+    {
+      "u": 0,
+      "v": 3,
+      "curvatureU": 0.019103782401602657,
+      "curvatureV": 0.011793174398069668
+    },
+    {
+      "u": 1,
+      "v": 3,
+      "curvatureU": 0.02495704890957073,
+      "curvatureV": 0.020132309600419236
+    },
+    {
+      "u": 2,
+      "v": 3,
+      "curvatureU": 0.051276949706569847,
+      "curvatureV": 0.03305277171659218
+    },
+    {
+      "u": 3,
+      "v": 3,
+      "curvatureU": 0.01394153658373521,
+      "curvatureV": 0.03773571501137866
+    }
+  ],
+  "lastUpdate": {
+    "movedNode": [
+      4,
+      5
+    ],
+    "dirtyPatches": 6,
+    "rebuiltPatches": 6,
+    "rebuiltIndices": [
+      9,
+      10,
+      11,
+      13,
+      14,
+      15
+    ],
+    "local": true
+  },
+  "diagnostics": {
+    "seamGap": 0,
+    "tangentError": 5.682252989669886e-15,
+    "normalAngleDegrees": 0.0000017075472925031877,
+    "secondDerivativeError": 0,
+    "silhouetteSagittaPx": 0.0284226394912847,
+    "silhouetteShortening": 0.000015861554676693386,
+    "samples": 384,
+    "continuity": "C2"
+  },
+  "initialDiagnostics": {
+    "seamGap": 0,
+    "tangentError": 5.682252989669886e-15,
+    "normalAngleDegrees": 0.0000017075472925031877,
+    "secondDerivativeError": 0,
+    "silhouetteSagittaPx": 0.010473562656849412,
+    "silhouetteShortening": 0.000002561132342964536,
+    "samples": 384,
+    "continuity": "C2"
+  }
+}
