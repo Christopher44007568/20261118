@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HDR 色调映射对比 · Linear / Reinhard / ACES / Custom</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>HDR 色调映射对比台</h1>
+  <p class="sub">四种算法共享同一份线性 HDR 输入 —— 曝光在色调映射之前以线性乘法施加，无隐藏高光裁切。</p>
+</header>
+
+<section id="controls">
+  <div class="ctl">
+    <label>场景</label>
+    <div class="seg" id="sceneSeg">
+      <button data-scene="sunset" class="on">日落 Sunset</button>
+      <button data-scene="indoor">室内暗部 Indoor</button>
+      <button data-scene="neon">霓虹 Neon</button>
+    </div>
+  </div>
+  <div class="ctl grow">
+    <label>曝光 <span id="evLabel">0.0 EV</span></label>
+    <input type="range" id="exposure" min="-6" max="6" step="0.1" value="0">
+  </div>
+  <div class="ctl" id="sceneInfo"></div>
+</section>
+
+<main id="panels"></main>
+
+<section id="customCurveBox">
+  <h2>自定义曲线控制点 <span class="hint">(仅影响 Custom 面板，横轴 = log2 输入亮度 EV，纵轴 = 输出)</span></h2>
+  <div id="curveSliders"></div>
+</section>
+
+<section id="histBox">
+  <h2>直方图</h2>
+  <div class="histRow">
+    <div>
+      <h3>输入 HDR 亮度分布 (log2 EV)</h3>
+      <canvas id="histInput" width="560" height="180"></canvas>
+    </div>
+    <div>
+      <h3>输出亮度分布 (0–1)</h3>
+      <canvas id="histOutput" width="560" height="180"></canvas>
+    </div>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>色相偏移与高光恢复</h2>
+  <table id="metricsTable">
+    <thead>
+      <tr><th>算法</th><th>输入峰值</th><th>输出峰值</th><th>中间灰 (0.18 → 输出)</th><th>映射到 0.5 的输入</th><th>裁切像素 %</th><th>高饱和区平均色相偏移</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p class="hint">色相偏移：对饱和度 &gt; 0.4 且亮度位于上半区的像素，比较色调映射前后的 HSV 色相角差（取色相对应比值归一后）。切到「霓虹」场景差异最明显；「日落」观察太阳附近的高光恢复；「室内暗部」观察暗部 toe 行为。</p>
+</section>
+
+<script src="js/tonemap.js"></script>
+<script src="js/scenes.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

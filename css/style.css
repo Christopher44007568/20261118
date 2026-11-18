@@ -1,0 +1,72 @@
+:root {
+  --bg: #14161a;
+  --panel: #1d2026;
+  --line: #2c313a;
+  --text: #d8dce3;
+  --dim: #8a919d;
+  --accent: #5ec1ff;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.5 "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  padding: 16px 24px 48px;
+}
+header h1 { margin: 0 0 4px; font-size: 20px; }
+.sub { margin: 0 0 16px; color: var(--dim); }
+
+#controls {
+  display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+}
+.ctl label { display: block; color: var(--dim); font-size: 12px; margin-bottom: 4px; }
+.ctl.grow { flex: 1; min-width: 240px; }
+.ctl input[type=range] { width: 100%; }
+#evLabel { color: var(--accent); font-weight: 600; }
+#sceneInfo { color: var(--dim); font-size: 12px; max-width: 320px; }
+.seg button {
+  background: #262b33; color: var(--text); border: 1px solid var(--line);
+  padding: 6px 12px; cursor: pointer; font-size: 13px;
+}
+.seg button:first-child { border-radius: 6px 0 0 6px; }
+.seg button:last-child { border: 0; border-radius: 0 6px 6px 0; }
+.seg button.on { background: var(--accent); color: #0b1620; font-weight: 600; }
+
+#panels {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  gap: 16px; margin-bottom: 16px;
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px;
+}
+.panel h2 { margin: 0 0 8px; font-size: 15px; display: flex; justify-content: space-between; }
+.panel h2 .tag { font-size: 11px; color: var(--dim); font-weight: 400; }
+.panel canvas.img { width: 100%; border-radius: 4px; display: block; background: #000; }
+.panel canvas.curve { width: 100%; height: 110px; display: block; margin-top: 8px;
+  background: #101216; border: 1px solid var(--line); border-radius: 4px; }
+.stats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; color: var(--dim); }
+.stats b { color: var(--text); font-weight: 600; }
+
+section#customCurveBox, section#histBox, section#compare {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+}
+section h2 { margin: 0 0 10px; font-size: 15px; }
+section h3 { margin: 0 0 6px; font-size: 12px; color: var(--dim); font-weight: 500; }
+.hint { color: var(--dim); font-size: 12px; font-weight: 400; }
+.histRow { display: flex; gap: 24px; flex-wrap: wrap; }
+.histRow canvas { background: #101216; border: 1px solid var(--line); border-radius: 4px; max-width: 100%; }
+
+#curveSliders { display: flex; gap: 18px; flex-wrap: wrap; }
+#curveSliders .cs { width: 180px; }
+#curveSliders label { display: flex; justify-content: space-between; font-size: 12px; color: var(--dim); }
+#curveSliders input { width: 100%; }
+
+table { border-collapse: collapse; width: 100%; font-size: 12px; }
+th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--dim); font-weight: 500; }
