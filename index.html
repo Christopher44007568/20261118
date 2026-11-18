@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121417" />
+    <meta
+      name="description"
+      content="使用同一程序化环境光照，比较金属、陶瓷与磨砂塑料的实时 PBR 材质实验台。"
+    />
+    <title>PBR 材质实验台</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="lab">
+      <section class="stage" aria-label="PBR 材质实时预览">
+        <canvas id="pbr-canvas" aria-label="金属、陶瓷与磨砂塑料三球对比"></canvas>
+        <div class="stage-meta">
+          <span class="live-dot"></span>
+          <span>LIVE / HDR</span>
+          <span class="stage-divider"></span>
+          <span>Cook–Torrance GGX</span>
+        </div>
+        <div class="stage-caption">
+          <span>相同程序化环境</span>
+          <span class="caption-line"></span>
+          <span>同一曝光 · 同一相机</span>
+        </div>
+        <div class="material-legend" aria-hidden="true">
+          <span><i class="dot metal-dot"></i>金属</span>
+          <span><i class="dot ceramic-dot"></i>陶瓷</span>
+          <span><i class="dot plastic-dot"></i>磨砂塑料</span>
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="材质与光照控制">
+        <header class="panel-head">
+          <div class="eyebrow">REAL-TIME MATERIAL STUDY</div>
+          <h1>PBR 材质实验台</h1>
+          <p>同一程序化环境光照 · GGX + Smith + Schlick · 三材质并排对照</p>
+          <div class="head-rule"></div>
+        </header>
+
+        <section class="control-group" aria-labelledby="display-title">
+          <h2 id="display-title">显示模式</h2>
+          <label class="control-row">
+            <span>色调映射</span>
+            <select id="tone-mode" aria-label="色调映射模式">
+              <option value="aces">ACES Filmic</option>
+              <option value="linear">Linear (no tonemap)</option>
+            </select>
+          </label>
+          <label class="control-row range-row">
+            <span>曝光 <output id="exposure-value">0.0 EV</output></span>
+            <input id="exposure" type="range" min="-2" max="2.5" step="0.1" value="0" />
+          </label>
+        </section>
+
+        <section class="control-group" aria-labelledby="brdf-title">
+          <h2 id="brdf-title">BRDF 分项开关</h2>
+          <div class="check-grid">
+            <label class="check"><input id="show-diffuse" type="checkbox" checked /><span>漫反射项 <em>Diffuse</em></span></label>
+            <label class="check"><input id="show-specular" type="checkbox" checked /><span>高光项 <em>Specular</em></span></label>
+            <label class="check"><input id="show-direct" type="checkbox" checked /><span>方向光 <em>Direct</em></span></label>
+            <label class="check"><input id="show-ibl" type="checkbox" checked /><span>环境光 <em>IBL</em></span></label>
+            <label class="check check-wide"><input id="show-normal" type="checkbox" checked /><span>法线贴图 <em>仅扰动局部法线</em></span></label>
+          </div>
+          <label class="control-row range-row compact">
+            <span>法线强度 <output id="normal-value">0.65</output></span>
+            <input id="normal-strength" type="range" min="0" max="1.6" step="0.05" value="0.65" />
+          </label>
+        </section>
+
+        <section class="control-group material-controls" aria-labelledby="material-title">
+          <div class="group-title-row">
+            <h2 id="material-title">材质参数</h2>
+            <span>粗糙度 / 金属度</span>
+          </div>
+          <div id="material-list"></div>
+          <button id="reset" class="reset-button" type="button">
+            <span class="reset-mark">↺</span> 恢复预设
+          </button>
+        </section>
+
+        <section class="control-group readout-group" aria-labelledby="readout-title">
+          <div class="group-title-row">
+            <h2 id="readout-title">验收读数</h2>
+            <span class="hdr-tag">HDR LINEAR · Y</span>
+          </div>
+          <table class="readout-table">
+            <thead>
+              <tr><th>材质</th><th>平均 Y</th><th>峰值 Y</th><th>状态</th></tr>
+            </thead>
+            <tbody id="readout-body"></tbody>
+          </table>
+          <div id="energy-note" class="energy-note">
+            <span class="status-icon">✓</span>
+            <span>金属漫反射锁零 · 高光能量守恒</span>
+          </div>
+        </section>
+
+        <footer class="panel-foot">
+          <span>拖动画布旋转环境</span>
+          <kbd>R</kbd><span>复位视角</span>
+        </footer>
+      </aside>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
