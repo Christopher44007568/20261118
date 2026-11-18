@@ -1,0 +1,13 @@
+{
+  "name": "aniso-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "拉丝金属各向异性高光演示(WebGL2 单瓣各向异性 GGX)",
+  "scripts": {
+    "serve": "python3 -m http.server 8000",
+    "capture": "node tools/capture.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.0.0"
+  }
+}

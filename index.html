@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ANISO/LAB · 拉丝金属各向异性高光</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">≡</div>
+    <div>
+      <div class="brand-name">ANISO / LAB</div>
+      <div class="brand-sub">BRUSHED METAL MICROFACET STUDY</div>
+    </div>
+  </div>
+  <div class="top-status">
+    <span class="dot live"></span> 固定相机 &nbsp;|&nbsp; 单瓣各向异性 GGX &nbsp;|&nbsp; 实时
+  </div>
+  <div class="top-right"><span id="fps">-- FPS</span><span class="badge">WEBGL 2</span></div>
+</header>
+
+<main class="layout">
+  <aside class="panel left">
+    <div class="panel-title">SAMPLE SETUP <span class="idx">01</span></div>
+    <h2>拉丝参数</h2>
+    <div class="section-label">MICROFACET <span>共享基底</span></div>
+    <div class="ctl">
+      <div class="ctl-head"><span>基础粗糙度</span><span class="val" id="vRough">0.22</span></div>
+      <input type="range" id="rough" min="0.05" max="0.6" step="0.01" value="0.22">
+      <div class="ctl-foot"><span>锐利</span><span>柔和</span></div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>各向异性</span><span class="val" id="vAniso">0.62</span></div>
+      <input type="range" id="aniso" min="0" max="0.9" step="0.01" value="0.62">
+      <div class="ctl-foot"><span>圆形瓣</span><span>强拉伸</span></div>
+    </div>
+    <div class="ctl toggle-row">
+      <div>
+        <div class="ctl-head"><span>单镜面瓣锁定</span><span class="badge ok" id="lobeBadge">PASS</span></div>
+        <div class="hint">各向异性项替代普通粗糙度瓣,不叠加冲突高光</div>
+      </div>
+      <label class="switch"><input type="checkbox" id="singleLobe" checked><span></span></label>
+    </div>
+    <div class="section-label">ORIENTATION <span>切线随物体</span></div>
+    <div class="ctl">
+      <div class="ctl-head"><span>样品滚转</span><span class="val" id="vRoll">0°</span></div>
+      <input type="range" id="roll" min="0" max="360" step="1" value="0">
+      <div class="btn-row">
+        <button data-roll="0">归零</button>
+        <button data-roll="-30">−30°</button>
+        <button data-roll="+30">+30°</button>
+        <button data-roll="+90">+90°</button>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><span class="chip chip-h"></span> H 水平拉丝 <span class="tangent-tag">T ≈ X</span></div>
+      <div class="legend-item"><span class="chip chip-v"></span> V 垂直拉丝 <span class="tangent-tag">T ≈ Y</span></div>
+    </div>
+  </aside>
+
+  <section class="stage-wrap">
+    <div class="stage-bar">
+      <div class="view-toggle">
+        <button id="viewLit" class="active">◉ 光照结果</button>
+        <button id="viewTangent">◉ 切线调试</button>
+      </div>
+      <div class="cam-lock">▣ CAMERA LOCK 0°</div>
+    </div>
+    <canvas id="gl"></canvas>
+    <div class="stage-caption" id="stageCaption"></div>
+    <div class="orbit-panel">
+      <div class="orbit-head">
+        <div>
+          <div class="section-label">LIGHT ORBIT</div>
+          <div class="orbit-title">固定相机 · 旋转光源</div>
+        </div>
+        <div class="orbit-btns">
+          <button id="autoOrbit">▶ 自动旋转</button>
+          <button id="orbitReset">C</button>
+        </div>
+      </div>
+      <div class="ctl">
+        <div class="ctl-head"><span>AZ&nbsp;<b class="val" id="vAz">28°</b></span><span class="hint">静止 · 手动扫光</span></div>
+        <input type="range" id="azimuth" min="0" max="360" step="1" value="28">
+        <div class="ctl-foot ticks"><span>0°</span><span>90°</span><span>180°</span><span>270°</span><span>360°</span></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel right">
+    <div class="panel-title">LIVE DIAGNOSTICS <span class="dot live"></span></div>
+    <h2>高光读数</h2>
+    <div class="readout" id="readoutH">
+      <div class="readout-head"><span class="tag tag-h">H</span> 水平拉丝 <span class="sub">BITANGENT-LIMITED</span><span class="tangent-tag">T ⇄ X</span></div>
+      <canvas class="spark" id="sparkH" width="360" height="44"></canvas>
+      <div class="metrics"><span>长度比 <b id="mRatioH">–</b></span><span>方向 <b id="mDirH">–</b></span><span>峰值 <b id="mPeakH">–</b></span></div>
+    </div>
+    <div class="readout" id="readoutV">
+      <div class="readout-head"><span class="tag tag-v">V</span> 垂直拉丝 <span class="sub">BITANGENT-LIMITED</span><span class="tangent-tag">T ⇄ Y</span></div>
+      <canvas class="spark" id="sparkV" width="360" height="44"></canvas>
+      <div class="metrics"><span>长度比 <b id="mRatioV">–</b></span><span>方向 <b id="mDirV">–</b></span><span>峰值 <b id="mPeakV">–</b></span></div>
+    </div>
+    <div class="section-label">瓣剖面 / 切线方向 <span id="lobeRatio">αT / αB = –</span></div>
+    <canvas id="lobePlot" width="360" height="120"></canvas>
+    <div class="plot-legend"><span class="ln ln-t">— 沿切线 T</span><span class="ln ln-b">— 垂直切线 B</span></div>
+    <div class="section-label">切线调试色 <span id="dbgMode">LIGHTING</span></div>
+    <div class="grad-bar"></div>
+    <div class="grad-ticks"><span>● +X</span><span>● +Y</span><span>● +Z</span></div>
+    <p class="note" id="dbgNote"></p>
+    <div class="section-label">一致性检查 <span class="badge ok" id="consistency">PASS</span></div>
+    <ul class="checks" id="checks"></ul>
+    <p class="note small">拉丝方向的微表面斜率被各向异性 αT/αB 拉伸;高光长轴跟随世界空间切线 T,而不是屏幕固定方向。</p>
+  </aside>
+</main>
+<script src="js/shaders.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
