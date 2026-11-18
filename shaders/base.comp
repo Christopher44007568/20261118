@@ -1,0 +1,59 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "scene.glsl"
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0, rgba16f) uniform image2D outColor;
+layout(set = 0, binding = 1, r32f) uniform image2D outDepth;
+layout(set = 0, binding = 2) uniform UB { Params P; };
+
+vec3 skyColor(vec3 rd) {
+    float h = clamp(rd.y * 0.5 + 0.5, 0.0, 1.0);
+    vec3 sky = mix(vec3(0.05, 0.06, 0.09), vec3(0.16, 0.18, 0.24), h);
+    float horizon = pow(1.0 - abs(rd.y), 6.0);
+    return sky + vec3(0.10, 0.09, 0.08) * horizon * 0.4;
+}
+
+void main() {
+    ivec2 px = ivec2(gl_GlobalInvocationID.xy);
+    vec2 size = vec2(imageSize(outColor));
+    if (px.x >= int(size.x) || px.y >= int(size.y)) return;
+
+    vec2 uv = (vec2(px) + 0.5) / size;
+    vec2 ndc = uv * 2.0 - 1.0;
+    vec3 ro = P.camPos.xyz;
+    vec3 rd = normalize(P.camForward.xyz
+                      + P.camRight.xyz * (ndc.x * P.camRight.w)
+                      + P.camUp.xyz * (ndc.y * P.camUp.w));
+
+    float hitId;
+    float t = traceScene(ro, rd, hitId);
+
+    vec3 color;
+    float depth;
+    if (t < 0.0) {
+        color = skyColor(rd);
+        depth = -1.0;
+    } else {
+        vec3 p = ro + rd * t;
+        vec3 n = calcNormal(p);
+        vec3 albedo = surfaceAlbedo(hitId, p);
+        float vis = shadowVisibility(p, P);
+        vec3 radiance = lightRadiance(p, P);
+        vec3 ambient = vec3(0.08, 0.09, 0.12);
+        float ndl = max(dot(n, normalize(P.lightPos.xyz - p)), 0.0);
+        color = albedo * (ambient + radiance * (vis * ndl) + radiance * vis * 0.15);
+        // Soft contact darkening in crevices.
+        float ao = clamp(0.5 + 0.5 * mapScene(p + n * 0.15), 0.25, 1.0);
+        color *= ao;
+        depth = t;
+    }
+
+    // Subtle tone curve + dithering to keep 16f storage banding free.
+    color = color / (1.0 + color);
+    float dither = (hash31(vec3(px, P.timing.x), P.controls.z) - 0.5) / 255.0;
+    color += dither;
+    imageStore(outColor, px, vec4(max(color, 0.0), 1.0));
+    imageStore(outDepth, px, vec4(depth));
+}

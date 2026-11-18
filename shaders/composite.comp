@@ -1,0 +1,78 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "scene.glsl"
+
+// Upscales the half-resolution volumetric buffer and composites it over the
+// full-resolution base lighting. Depth-aware weights stop shaft light from
+// bleeding across silhouette edges.
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0, rgba16f) uniform readonly image2D baseColor;
+layout(set = 0, binding = 1, r32f) uniform readonly image2D baseDepth;
+layout(set = 0, binding = 2, rgba16f) uniform readonly image2D volScatter;
+layout(set = 0, binding = 3, r32f) uniform readonly image2D volTrans;
+layout(set = 0, binding = 4, rgba16f) uniform writeonly image2D outColor;
+layout(set = 0, binding = 5) uniform UB { Params P; };
+
+void main() {
+    ivec2 px = ivec2(gl_GlobalInvocationID.xy);
+    vec2 full = vec2(imageSize(outColor));
+    if (px.x >= int(full.x) || px.y >= int(full.y)) return;
+
+    vec4 base = imageLoad(baseColor, px);
+    float depth = imageLoad(baseDepth, px).x;
+
+    vec2 vsize = vec2(imageSize(volScatter));
+    vec2 fuv = (vec2(px) + 0.5) / full;
+    vec2 vf = fuv * vsize - 0.5;
+    ivec2 v0 = ivec2(floor(vf));
+    vec2 w = fract(vf);
+
+    vec3 scatterAcc = vec3(0.0);
+    float transAcc = 0.0;
+    float wsum = 0.0;
+
+    for (int yy = 0; yy <= 1; yy++) {
+        for (int xx = 0; xx <= 1; xx++) {
+            ivec2 sp = clamp(v0 + ivec2(xx, yy), ivec2(0), ivec2(vsize) - 1);
+            float bil = (xx == 0 ? 1.0 - w.x : w.x) * (yy == 0 ? 1.0 - w.y : w.y);
+
+            // Depth edge weight: each half-res texel covers a 2x2 full block.
+            // Compare against the average depth inside that block.
+            ivec2 blockOrigin = ivec2(vec2(sp) / vsize * full);
+            float dsum = 0.0;
+            int dcnt = 0;
+            for (int by = 0; by < 2; by++) {
+                for (int bx = 0; bx < 2; bx++) {
+                    ivec2 bp = clamp(blockOrigin + ivec2(bx, by), ivec2(0), ivec2(full) - 1);
+                    dsum += imageLoad(baseDepth, bp).x;
+                    dcnt++;
+                }
+            }
+            float blockDepth = dsum / float(dcnt);
+            float dw = 1.0;
+            if (depth > 0.0 && blockDepth > 0.0)
+                dw = 1.0 / (1.0 + 25.0 * abs(depth - blockDepth));
+            float weight = bil * dw;
+
+            scatterAcc += imageLoad(volScatter, sp).rgb * weight;
+            transAcc += imageLoad(volTrans, sp).x * weight;
+            wsum += weight;
+        }
+    }
+    scatterAcc /= max(wsum, 1e-5);
+    transAcc /= max(wsum, 1e-5);
+
+    vec3 finalColor;
+    if (int(P.controls.w + 0.5) == 0) {
+        // Volumetrics disabled: base lighting only.
+        finalColor = base.rgb;
+    } else {
+        // Undo the base tone curve, add linear in-scatter, re-apply it.
+        vec3 baseLin = base.rgb / max(1.0 - base.rgb, 1e-4);
+        vec3 lin = baseLin * transAcc + scatterAcc;
+        finalColor = lin / (1.0 + lin);
+    }
+    imageStore(outColor, px, vec4(clamp(finalColor, 0.0, 1.0), 1.0));
+}

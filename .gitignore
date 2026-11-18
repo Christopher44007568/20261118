@@ -1,0 +1,4 @@
+build/
+results/**/*.f32.bin
+results/**/*.ppm
+*.o

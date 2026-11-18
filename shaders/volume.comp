@@ -1,0 +1,100 @@
+#version 460
+#extension GL_GOOGLE_include_directive : require
+#include "scene.glsl"
+
+// Volumetric spot-light shaft.
+// One dispatch thread per half-resolution target pixel. Marching happens in
+// world space with a fixed world-space step and a per-pixel jitter, so pixels
+// near the near plane share the same sample distribution and cannot form
+// stripe bands when the camera moves.
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0, rgba16f) uniform image2D outScatter; // premultiplied in-scatter
+layout(set = 0, binding = 1, r32f) uniform image2D outTransmittance;
+layout(set = 0, binding = 2) uniform UB { Params P; };
+
+// Stable hash in [0,1) for dithered ray offsets.
+float pixelHash(ivec2 px, float seed) {
+    return hash31(vec3(px, P.timing.x), seed);
+}
+
+void main() {
+    ivec2 px = ivec2(gl_GlobalInvocationID.xy);
+    vec2 vsize = vec2(imageSize(outScatter));
+    if (px.x >= int(vsize.x) || px.y >= int(vsize.y)) return;
+
+    vec2 uv = (vec2(px) + 0.5) / vsize;
+    vec2 ndc = uv * 2.0 - 1.0;
+    vec3 ro = P.camPos.xyz;
+    vec3 rd = normalize(P.camForward.xyz
+                      + P.camRight.xyz * (ndc.x * P.camRight.w)
+                      + P.camUp.xyz * (ndc.y * P.camUp.w));
+
+    // Medium bounding box so empty space is never sampled.
+    const vec3 boxMin = vec3(-6.0, -1.25, -13.0);
+    const vec3 boxMax = vec3( 6.0,  4.0,  3.0);
+    float tEnter, tExit;
+    {
+        vec3 inv = 1.0 / rd;
+        vec3 t0 = (boxMin - ro) * inv;
+        vec3 t1 = (boxMax - ro) * inv;
+        vec3 tmin = min(t0, t1);
+        vec3 tmax = max(t0, t1);
+        tEnter = max(max(tmin.x, tmin.y), tmin.z);
+        tExit  = min(min(tmax.x, tmax.y), tmax.z);
+        tEnter = max(tEnter, P.camForward.w);
+    }
+
+    int steps = int(P.controls.y + 0.5);
+    if (tExit <= tEnter || steps <= 0 || P.controls.x <= 0.0) {
+        imageStore(outScatter, px, vec4(0.0));
+        imageStore(outTransmittance, px, vec4(1.0));
+        return;
+    }
+
+    float span = tExit - tEnter;
+    // Fixed world-space step length: independent of distance to the near plane.
+    float stepLen = span / float(steps);
+    float jitter = pixelHash(px, P.controls.z + 101.7);
+    float t = tEnter + (jitter - 0.5) * stepLen;
+
+    float extinction = P.medium.w + P.medium.z; // absorption + out-scatter
+    vec3 scatterAccum = vec3(0.0);
+    float transmittance = 1.0;
+
+    for (int i = 0; i < 256; i++) {
+        if (i >= steps) break;
+        float tc = t + stepLen * 0.5;
+        vec3 sp = ro + rd * tc;
+
+        // Shadow depth: is this sample lit by the spot light?
+        float vis = shadowVisibility(sp, P);
+        vec3 radiance = lightRadiance(sp, P);
+
+        // Participating medium density from the noise field.
+        float density = mediumDensity(sp, P);
+        float dOpt = density * stepLen;
+
+        // Henyey-Greenstein-ish forward emphasis around the beam direction.
+        vec3 toCam = -rd;
+        vec3 ldir = normalize(sp - P.lightPos.xyz);
+        float cosT = clamp(dot(toCam, -ldir), -1.0, 1.0);
+        float g = 0.55;
+        float phase = (1.0 - g * g) / pow(1.0 + g * g - 2.0 * g * cosT, 1.5);
+
+        float scatterCoef = P.medium.z * P.controls.x;
+        vec3 inscatter = radiance * vis * density * scatterCoef * phase * stepLen;
+
+        // Front-to-back emission with exponential transmittance.
+        float tr = exp(-extinction * dOpt);
+        scatterAccum += transmittance * inscatter;
+        transmittance *= tr;
+
+        t += stepLen;
+        if (t >= tExit) break;
+    }
+
+    imageStore(outScatter, px, vec4(scatterAccum, 1.0));
+    imageStore(outTransmittance, px, vec4(transmittance));
+}
