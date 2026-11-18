@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Depth-Reprojection Motion Blur</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0e12; overflow: hidden;
+    font-family: "Segoe UI", system-ui, sans-serif; }
+  #glcanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  /* HUD is a DOM overlay: composited by the browser AFTER the WebGL canvas,
+     so the blur shader can never sample it. */
+  #hud { position: absolute; inset: 0; pointer-events: none; color: #dfe7ef;
+    display: flex; flex-direction: column; justify-content: space-between; }
+  #hud .panel { background: rgba(10, 14, 20, 0.55); border: 1px solid rgba(120,160,200,0.25);
+    border-radius: 6px; padding: 8px 12px; margin: 10px; width: max-content; max-width: 46vw; }
+  #hud h1 { font-size: 13px; letter-spacing: 0.12em; margin: 0 0 4px; color: #8fd0ff; }
+  #hud .sub { font-size: 11px; opacity: 0.8; margin-bottom: 6px; }
+  #hud .group { font-size: 10px; letter-spacing: 0.1em; opacity: 0.65; margin: 6px 0 3px; }
+  #hud .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  #hud button { pointer-events: auto; background: #182230; color: #cfe3f5; font-size: 11px;
+    border: 1px solid #33506e; border-radius: 4px; padding: 3px 9px; cursor: pointer; }
+  #hud button.active { background: #2f6db3; border-color: #6fb1ff; color: #fff; }
+  #hud .state { font-size: 11px; font-variant-numeric: tabular-nums; }
+  #hud .state b { color: #9fe6a0; }
+  #hud .note { font-size: 10px; opacity: 0.6; margin-top: 6px; }
+  #hud .bottom { align-self: flex-end; text-align: right; }
+</style>
+</head>
+<body>
+<canvas id="glcanvas" width="960" height="540"></canvas>
+<section id="hud">
+  <div class="panel" id="hud-top">
+    <h1>WEBGL2 / DEPTH REPROJECTION</h1>
+    <div class="sub">Velocity Field — camera motion and local object motion are reconstructed separately.</div>
+    <div class="group">TEST SCENE</div>
+    <div class="row" id="scenario-row">
+      <button data-scenario="static">Static</button>
+      <button data-scenario="pan">Fast pan</button>
+      <button data-scenario="fan">Spinning fan</button>
+      <button id="pause-btn">Pause</button>
+    </div>
+    <div class="group">DEBUG VIEW</div>
+    <div class="row" id="view-row">
+      <button data-view="composite">Composite</button>
+      <button data-view="velocity">Velocity</button>
+      <button data-view="blur">Blur buffer</button>
+      <button data-view="history">History weight</button>
+      <button data-view="split">Motion split</button>
+    </div>
+    <div class="group">FRAME STATE</div>
+    <div class="state" id="frame-state">Motion 0.0 px · History 0% · Occlusion clear</div>
+  </div>
+  <div class="panel bottom" id="hud-bottom">
+    <div class="state" id="view-label">COMPOSITE</div>
+    <div class="note">Occlusion-aware directional blur, then temporal resolve.<br>
+    HUD DOM layer: drawn after blur, never sampled</div>
+  </div>
+</section>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
